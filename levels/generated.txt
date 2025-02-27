@@ -1,3 +1,0 @@
-generated-blocks{
-[0,5,3,1,SolidBlock.bmp,0,]
-}
