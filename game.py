@@ -1,4 +1,5 @@
 import numpy as np
+import random
 
 class MDPGame:
     STAY = 0
@@ -6,19 +7,28 @@ class MDPGame:
     RIGHT = 1
 
     def __init__(self):
-        self.width = 3
+        self.width = 7
         self.level = [
-            (0, 0, 0),
-            (0, 0, 0),
-            (0, 1, 0),
-            (0, 0, 0),
-            (0, 0, 0),
-            (1, 1, 0),
-            (0, 0, 0),
-            (0, 0, 0),
-            (0, 1, 1),
-            (0, 0, 0),
-            (1, 0, 1),
+            (0, 0, 0, 0, 0, 0, 0),
+            (0, 0, 0, 0, 0, 0, 0),
+            (0, 1, 0, 1, 1, 0, 1),
+            (0, 0, 0, 0, 0, 0, 0),
+            (0, 0, 0, 0, 0, 0, 0),
+            (1, 1, 0, 1, 0, 1, 0),
+            (0, 0, 0, 0, 0, 0, 0),
+            (0, 0, 0, 0, 0, 0, 0),
+            (0, 1, 1, 1, 1, 0, 0),
+            (0, 0, 0, 0, 0, 0, 0),
+            (1, 0, 1, 0, 0, 1, 1),
+            (0, 0, 0, 0, 0, 0, 0),
+            (0, 0, 0, 0, 0, 0, 0),
+            (1, 1, 1, 0, 0, 1, 1),
+            (0, 0, 0, 0, 0, 0, 0),
+            (0, 0, 0, 0, 0, 0, 0),
+            (1, 1, 0, 1, 0, 1, 0),
+            (0, 0, 0, 0, 0, 0, 0),
+            (0, 0, 0, 0, 0, 0, 0),
+            (1, 1, 0, 1, 1, 1, 1)
         ]
         self.height = len(self.level)
         self.actions = [self.LEFT, self.STAY, self.RIGHT]
@@ -68,6 +78,44 @@ class MDPGame:
         """Return all possible states and actions"""
         states = [(y, x) for y in range(self.height) for x in range(self.width)]
         return states, self.actions
+
+    def terminal(self, state):
+        """"Boolean True if at a terminal state, False otherwise"""
+        y, x = self.state
+        if self.level[y][x] == 1 or y == self.height - 1:
+            return True
+        return False
+
+    def sample_episode(self, policy, T = None):
+        """"Sample a random sequence from the MDP"""
+        seq = []
+        s = self.reset
+
+        if self.task == 'continuing':
+            assert (T is not None)
+            for t in range (T):
+                a = random.choice(self.get_states_actions())
+                s1 = self.get_next_state(self.state , a)
+                (s1, reward, done) = self.step(a)
+                seq.append([s, a, reward])
+                s = s1
+        else:
+            t = 0
+            while True:
+                if T is None and self.terminal(s):
+                    break
+                elif t == T:
+                    break
+                a = random.choice(self.get_states_actions())
+                if self.terminal(s):
+                    s1 = self.reset()
+                    r = 0
+                else:
+                    (s1, reward, done) = self.step(a)
+                seq.append([s, a, reward])
+                s = s1
+                t = t + 1
+        return seq
 
     def print_state(self, agent_position):
         """Prints the current game state with the agent's position."""
