@@ -35,44 +35,40 @@ class MDPGame:
         self.state = (0, 1)  # Start at the top center
 
     def reset(self):
-        self.state = (0, 1)  # Reset to the starting position
+        """Resets the game to the starting position"""
+        self.state = (0, 1)
         return self.state
 
     def step(self, action):
-        y, x = self.state
-        new_x = max(0, min(self.width - 1, x + action))
-        new_y = y + 1 if y < self.height - 1 else y  # Always move downward
+        """Calculates the next step according to the action and applies it to the state of the game"""
+        self.state, reward, _ = self.get_next_state(self, self.state, action)
+        return reward
 
-        # Check if game ends
-        done = new_y == self.height - 1  # Reached bottom
-        if self.level[new_y][new_x] == 1:  # Hit an obstacle
+    def evaluate_action(self, state, action):
+        """Returns the simulated reward of a given action"""
+        y, x = state
+        done = y == self.height - 1
+
+        if self.level[y][x] == 1: # Obstacle hit
             reward = -100
             done = True
         elif done:
-            reward = 100  # Goal reward
+            reward = 100
         else:
-            reward = -1  # Step penalty (encourages faster completion)
+            if action == self.STAY:
+                reward = -0.1
+            else:
+                reward = -2 # moving causes a small penalty to avoid pointless moves
 
-        self.state = (new_y, new_x)
-        return self.state, reward, done
+        return reward, done
 
     def get_next_state(self, state, action):
         """Simulate transition without modifying the real state"""
         y, x = state
         new_x = max(0, min(self.width - 1, x + action))  # Ensure within bounds
         new_y = min(y + 1, self.height - 1)  # Always move down
-
-        done = new_y == self.height - 1  # Check if we reached the last row
-        if self.level[new_y][new_x] == 1:
-            return (new_y, new_x), -100, True  # Obstacle hit
-        elif done:
-            return (new_y, new_x), 100, True  # Goal reached
-        else:
-            if action == self.STAY:
-                reward = -0.1  # Staying in place has no penalty
-            else:
-                reward = -2  # Movement has a small penalty
-            return (new_y, new_x), reward, False  # Regular move
+        reward, done = self.evaluate_action((new_y, new_x), action)
+        return (new_y, new_x), reward, done
 
     def get_states_actions(self):
         """Return all possible states and actions"""
@@ -89,31 +85,27 @@ class MDPGame:
     def sample_episode(self, policy, T = None):
         """"Sample a random sequence from the MDP"""
         seq = []
-        s = self.reset
+        # s = self.reset # why was this here??
 
         if self.task == 'continuing':
             assert (T is not None)
             for t in range (T):
                 a = random.choice(self.get_states_actions())
-                s1 = self.get_next_state(self.state , a)
-                (s1, reward, done) = self.step(a)
+                reward = self.step(a)
                 seq.append([s, a, reward])
-                s = s1
+                s = self.state
         else:
             t = 0
-            while True:
-                if T is None and self.terminal(s):
-                    break
-                elif t == T:
-                    break
+            while not (T is None and self.terminal(s) or t == T):
                 a = random.choice(self.get_states_actions())
                 if self.terminal(s):
-                    s1 = self.reset()
-                    r = 0
+                    seq.append([s, a, reward])
+                    s = self.reset()
+                    # r = 0 # whats r???
                 else:
-                    (s1, reward, done) = self.step(a)
-                seq.append([s, a, reward])
-                s = s1
+                    reward = self.step(a)
+                    seq.append([s, a, reward])
+                    s = self.state
                 t = t + 1
         return seq
 
