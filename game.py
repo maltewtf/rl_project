@@ -33,6 +33,7 @@ class MDPGame:
         self.height = len(self.level)
         self.actions = [self.LEFT, self.STAY, self.RIGHT]
         self.state = (0, 1)  # Start at the top center
+        self.reward = []
 
     def reset(self):
         """Resets the game to the starting position"""
@@ -82,31 +83,26 @@ class MDPGame:
             return True
         return False
 
-    def sample_episode(self, policy, T = None):
+    def sample_episode(self, T=None, max_steps = 1000):
         """"Sample a random sequence from the MDP"""
         seq = []
-        # s = self.reset # why was this here??
+        s = self.reset() # called to ensure each episode starts from the initial conditions
+        t = 0 # step counter
 
-        if self.task == 'continuing':
-            assert (T is not None)
-            for t in range (T):
-                a = random.choice(self.get_states_actions())
-                reward = self.step(a)
-                seq.append([s, a, reward])
-                s = self.state
-        else:
-            t = 0
-            while not (T is None and self.terminal(s) or t == T):
-                a = random.choice(self.get_states_actions())
-                if self.terminal(s):
-                    seq.append([s, a, reward])
-                    s = self.reset()
-                    # r = 0 # whats r???
-                else:
-                    reward = self.step(a)
-                    seq.append([s, a, reward])
-                    s = self.state
-                t = t + 1
+        while t < max_steps:
+
+            if T is None and self.terminal(s):
+                break
+            elif t == T:
+                break
+
+            a = random.choice(self.actions)
+
+            s1, r, done = self.get_next_state(s, a) # next state, reward and game end boolean
+            seq.append([s, a, r])
+
+            s = s1
+            t = t + 1
         return seq
 
     def print_state(self, agent_position):
