@@ -7,7 +7,6 @@ class MDPGame:
     RIGHT = 1
 
     def __init__(self):
-        self.width = 7
         self.level = [
             (0, 0, 0, 0, 0, 0, 0),
             (0, 0, 0, 0, 0, 0, 0),
@@ -30,6 +29,7 @@ class MDPGame:
             (0, 0, 0, 0, 0, 0, 0),
             (1, 1, 0, 1, 1, 1, 1)
         ]
+        self.width = len(self.level[0])
         self.height = len(self.level)
         self.actions = [self.LEFT, self.STAY, self.RIGHT]
         self.state = (0, 1)  # Start at the top center
@@ -90,7 +90,6 @@ class MDPGame:
         t = 0 # step counter
 
         while t < max_steps:
-
             if T is None and self.terminal(s):
                 break
             elif t == T:
