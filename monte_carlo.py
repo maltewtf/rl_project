@@ -2,7 +2,7 @@ from collections import defaultdict
 import numpy as np
 import matplotlib.pyplot as plt
 
-def mc_prediction(env, gamma=0.99, num_sim=30):
+def mc_prediction(env, gamma=0.99, num_sim=500):
     """Monte Carlo prediction algorithm that estimates state values."""
     V = defaultdict(float)
     returns = defaultdict(list)

@@ -47,8 +47,8 @@ class MDPGame:
 
     def step(self, action):
         """Calculates the next step according to the action and applies it to the state of the game"""
-        self.state, reward, done = self.get_next_state(self.state, action)
-        return reward, done
+        self.state, reward, _ = self.get_next_state(self.state, action)
+        return reward
 
     def evaluate_action(self, state, action):
         """Returns the simulated reward of a given action"""
@@ -83,7 +83,7 @@ class MDPGame:
 
     def terminal(self, state):
         """"Boolean True if at a terminal state, False otherwise"""
-        y, x = self.state
+        y, x = state
         if self.level[y][x] == 1 or y == self.height - 1:
             return True
         return False
