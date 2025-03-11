@@ -42,8 +42,8 @@ class MDPGame:
 
     def step(self, action):
         """Calculates the next step according to the action and applies it to the state of the game"""
-        self.state, reward, _ = self.get_next_state(self, self.state, action)
-        return reward
+        self.state, reward, done = self.get_next_state(self, self.state, action)
+        return reward, done
 
     def evaluate_action(self, state, action):
         """Returns the simulated reward of a given action"""
