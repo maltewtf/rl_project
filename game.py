@@ -6,7 +6,8 @@ class MDPGame:
     LEFT = -1
     RIGHT = 1
 
-    def __init__(self):
+    def __init__(self, random_x=False):
+        self.random_x = random_x
         self.level = [
             (0, 0, 0, 0, 0, 0, 0),
             (0, 0, 0, 0, 0, 0, 0),
@@ -32,17 +33,21 @@ class MDPGame:
         self.width = len(self.level[0])
         self.height = len(self.level)
         self.actions = [self.LEFT, self.STAY, self.RIGHT]
-        self.state = (0, 1)  # Start at the top center
+        # self.state = (0, 1)  # Start at the top center
         self.reward = []
+        self.reset() # initiate player position
 
     def reset(self):
         """Resets the game to the starting position"""
-        self.state = (0, 1)
+        if self.random_x:
+            self.state = (0, random.randint(0, self.width-1))
+        else:
+            self.state = (0, self.width // 2)
         return self.state
 
     def step(self, action):
         """Calculates the next step according to the action and applies it to the state of the game"""
-        self.state, reward, done = self.get_next_state(self, self.state, action)
+        self.state, reward, done = self.get_next_state(self.state, action)
         return reward, done
 
     def evaluate_action(self, state, action):
