@@ -37,10 +37,12 @@ class MDPGame:
         self.reward = []
         self.reset() # initiate player position
 
-    def reset(self):
+    def reset(self, specific_x=None):
         """Resets the game to the starting position"""
         if self.random_x:
             self.state = (0, random.randint(0, self.width-1))
+        elif specific_x != None:
+            self.state = specific_x
         else:
             self.state = (0, self.width // 2)
         return self.state
