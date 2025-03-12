@@ -134,3 +134,41 @@ def print_policy_grid(policy, env):
     for y in range(env.height):
         print(" ".join(grid[y]))
     print("\n")
+
+def value_iteration(env, gamma=0.99, theta=1e-6):
+    """Finds the optimal policy using Value Iteration."""
+    V = defaultdict(float)
+    states, actions = env.get_states_actions()
+
+    while True:
+        delta = 0
+
+        for state in states:
+            v = V[state]  # Expected return for this state
+
+            q_values = np.zeros(len(actions))  # Store Q-values for all actions
+
+            for action_idx, action in enumerate(actions):
+                next_state, reward, done = env.get_next_state(state, action)
+
+                # Compute Q-values correctly
+                q_values[action_idx] = reward + gamma * V[next_state] * (not done)
+
+            V[state] = max(q_values)  # Update state value
+
+            delta = max(delta, abs(v - V[state]))
+
+        if delta < theta:
+            break
+
+    # Extract the optimal policy
+    policy = {}
+    for state in states:
+        q_values = np.zeros(len(actions))
+        for action_idx, action in enumerate(actions):
+            next_state, reward, done = env.get_next_state(state, action)
+            q_values[action_idx] = reward + gamma * V[next_state] * (not done)
+        best_action = np.argmax(q_values)
+        policy[state] = np.eye(len(actions))[best_action]  # One-hot encoding
+
+    return policy, V

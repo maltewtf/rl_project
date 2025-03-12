@@ -10,19 +10,22 @@ print("-----Select which algorithm you would like to inspect for our agent playi
 option = input("Policy Iteration (1) \n"
                "Monte Carlo Prediction (2) \n"
                "Monte Carlo Control (3)\n"
+               "Value Iteration (4)\n"
                "Stop playing (e) \n")
 
 if option == "1":
     optimal_policy, optimal_V = pi.policy_iteration(env)
 elif option == "2":
-    V = mc.mc_prediction(env, num_sim=5000)
+    V = mc.mc_prediction(env, num_sim=1000)
     optimal_policy, optimal_V = pi.policy_iteration(env)
     #optimal_policy = mc.mc_policy_improvement(env, V)
 elif option == "3":
-    Q = mc.mc_control(env, num_sim=5000)
+    Q = mc.mc_control(env, num_sim=1000)
     V = mc.Q_to_V(Q, env)
     optimal_policy, optimal_V = pi.policy_iteration(env)
     #optimal_policy = mc.mc_policy_improvement(env, V)
+elif option == "4":
+    optimal_policy, optimal_V = pi.value_iteration(env)
 
 pi.simulate_agent(env, optimal_policy)
 
