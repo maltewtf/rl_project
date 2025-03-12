@@ -1,4 +1,5 @@
 import numpy as np
+import random 
 
 def print_V(policy, env):
     """Prints the policy as a visual grid."""
@@ -19,7 +20,7 @@ def print_V(policy, env):
 
 def test_policy(policy, env, test_all_starts=True):
     """runs the game with a given policy and then returns a success ratio"""
-    
+
     if test_all_starts:
         starts = range(env.width)
     else:
@@ -41,4 +42,18 @@ def test_policy(policy, env, test_all_starts=True):
     print(f"level completion: {success}/{len(starts)}")
     return success/len(starts)
 
+def epsilon_greedy_policy(Q, state, epsilon):
+    if random.uniform(0, 1) < epsilon:
+        return random.randint(-1, 1) # choose random action
+    else:
+        # returns the key of the maximum value in the dictionary 
+        return max(Q[state], key=Q[state].get) if state in Q else 0
+
+def reduce_Q_to_V(Q, game):
+    """reduces Q to V by choosing the action with the highes Q value"""
+    V = {}
+    for state in [(y, x) for y in range(game.height) for x in range(game.width)]:
+        V[state] = max(Q[state], key=Q[state].get) if state in Q else 0
+
+    return V
         
