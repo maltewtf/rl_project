@@ -69,6 +69,11 @@ class MDPGame:
                 reward = -2 # moving causes a small penalty to avoid pointless moves
 
         return reward, done
+    
+    def load_level(self, level):
+        self.level = level
+        self.height = len(level)
+        self.width = len(level[0])
 
     def get_next_state(self, state, action):
         """Simulate transition without modifying the real state"""
@@ -119,3 +124,28 @@ class MDPGame:
                 row[agent_position[1]] = "X"  # Mark agent's position
             print(f"|{''.join(row)}|")
         print("\n")
+
+
+
+hard_level = (
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 1, 1, 0, 0, 0, 1),
+    (0, 0, 0, 0, 0, 1, 1),
+    (1, 0, 0, 0, 0, 0, 0),
+    (0, 0, 1, 1, 1, 0, 0),
+    (0, 1, 1, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (1, 0, 0, 1, 0, 0, 0),
+    (0, 0, 0, 1, 1, 1, 1),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 1, 0),
+    (0, 0, 0, 0, 0, 1, 0),
+    (0, 0, 0, 0, 0, 1, 0),
+    (1, 1, 1, 1, 1, 1, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 1, 1),
+    (0, 0, 0, 0, 1, 0, 0),
+)
