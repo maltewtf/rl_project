@@ -33,18 +33,17 @@ class MDPGame:
         self.width = len(self.level[0])
         self.height = len(self.level)
         self.actions = [self.LEFT, self.STAY, self.RIGHT]
-        # self.state = (0, 1)  # Start at the top center
         self.reward = []
         self.reset() # initiate player position
 
     def reset(self, specific_x=None):
         """Resets the game to the starting position"""
-        if self.random_x:
-            self.state = (0, random.randint(0, self.width-1))
-        elif specific_x != None:
-            self.state = specific_x
+        if specific_x != None:
+            self.state = (0, specific_x)# if x value given, start there
+        elif self.random_x:
+            self.state = (0, random.randint(0, self.width-1)) # if random start in a random x position
         else:
-            self.state = (0, self.width // 2)
+            self.state = (0, self.width // 2) # if nothing given start in the centre
         return self.state
 
     def step(self, action):
@@ -148,4 +147,47 @@ hard_level = (
     (0, 0, 0, 0, 0, 0, 0),
     (0, 0, 0, 0, 0, 1, 1),
     (0, 0, 0, 0, 1, 0, 0),
+)
+
+long_level = (
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 1, 1, 0, 0, 0, 1),
+    (0, 0, 0, 0, 0, 1, 1),
+    (1, 0, 0, 0, 0, 0, 0),
+    (0, 0, 1, 1, 1, 0, 0),
+    (0, 1, 1, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (1, 0, 0, 1, 0, 0, 0),
+    (0, 0, 0, 1, 1, 1, 1),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 1, 0),
+    (0, 0, 0, 0, 0, 1, 0),
+    (0, 0, 0, 0, 0, 1, 0),
+    (1, 1, 1, 1, 1, 1, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 1, 1),
+    (0, 0, 0, 0, 1, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 1, 0, 1, 1, 0, 1),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (1, 1, 0, 1, 0, 1, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 1, 1, 1, 1, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (1, 0, 1, 0, 0, 1, 1),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (1, 1, 1, 0, 0, 1, 1),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (1, 1, 0, 1, 0, 1, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (1, 1, 0, 1, 1, 1, 1)
 )

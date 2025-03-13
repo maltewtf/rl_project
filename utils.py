@@ -19,7 +19,7 @@ def print_V(policy, env):
         print(" ".join(grid[y]))
     print("\n")
 
-def test_policy(policy, env, test_all_starts=True):
+def test_policy(policy, env, n=1, test_all_starts=True, silent=False):
     """runs the game with a given policy and then returns a success ratio"""
 
     if test_all_starts:
@@ -28,20 +28,20 @@ def test_policy(policy, env, test_all_starts=True):
         starts = [env.width // 2]
 
     success = 0
-    reward = 0
 
-    for start_x in starts:
-        done = False
-        state = env.reset(start_x)
+    for _ in range(n): # repeats the test n times to reduce noise
+        for start_x in starts:
+            done = False
+            state = env.reset(start_x)
 
-        while not done:        
-            state, reward, done = env.get_next_state(state, policy[state])
+            while not done:
+                state, reward, done = env.get_next_state(state, policy[state])
 
-        if reward > 0:
-            success += 1
-
-    print(f"level completion: {success}/{len(starts)}")
-    return success/len(starts)
+            if reward > 0:
+                success += 1
+    if not silent:
+        print(f"level completion: {success}/{len(starts)*n}")
+    return success/(len(starts)*n)
 
 def epsilon_greedy_policy(Q, state, epsilon):
     if random.uniform(0, 1) < epsilon:
