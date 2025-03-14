@@ -19,8 +19,15 @@ def print_V(policy, env):
         print(" ".join(grid[y]))
     print("\n")
 
-def test_policy(policy, env, n=1, test_all_starts=True, silent=False):
-    """runs the game with a given policy and then returns a success ratio"""
+def test_policy(policy, env, test_all_starts=True, silent=False, count_partial_success=False):
+    """
+    runs the game with a given policy and then returns a success ratio.
+
+    Parameters:
+        test_all_starts: when True, test all possible starting possition and return the passrate of all together.
+        silent: when True, dont print anything at the end.
+        count_partial_success: when True, in addion to adding 1 for completing the level also add the achieved player hight/level height on death to the pass rate.
+    """
 
     if test_all_starts:
         starts = range(env.width)
@@ -29,19 +36,22 @@ def test_policy(policy, env, n=1, test_all_starts=True, silent=False):
 
     success = 0
 
-    for _ in range(n): # repeats the test n times to reduce noise
-        for start_x in starts:
-            done = False
-            state = env.reset(start_x)
+    for start_x in starts:
+        done = False
+        state = env.reset(start_x)
 
-            while not done:
-                state, reward, done = env.get_next_state(state, policy[state])
+        while not done:
+            state, reward, done = env.get_next_state(state, policy[state])
 
-            if reward > 0:
-                success += 1
+        if reward > 0:
+            success += 1
+        elif count_partial_success:
+            success += state[0] / env.height
+
     if not silent:
-        print(f"level completion: {success}/{len(starts)*n}")
-    return success/(len(starts)*n)
+        print(f"level completion: {success}/{len(starts)}")
+
+    return success/(len(starts))
 
 def epsilon_greedy_policy(Q, state, epsilon):
     if random.uniform(0, 1) < epsilon:

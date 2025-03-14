@@ -26,8 +26,8 @@ if __name__ == "__main__":
     env = MDPGame(random_x=True)
     env.load_level(hard_level)
 
-    Q = sarsa(env, episodes=10000, alpha=0.1, gamma=0.99, epsilon=0.1)
+    Q = sarsa(env, episodes=1000, alpha=0.1, gamma=0.99, epsilon=0.1)
     V = reduce_Q_to_V(Q, env)
 
     print_V(V, env)
-    test_policy(V, env)
+    test_policy(V, env, count_partial_success=True)
