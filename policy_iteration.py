@@ -78,10 +78,15 @@ def simulate_agent(env, policy):
     print("\nAgent Simulation:\n")
 
     while True:
-        env.print_state(state)  # Print current state
-        best_action = np.argmax(policy[state])  # Choose best action
-        action = env.actions[best_action]
+        env.print_state(state)
 
+        if state in policy:
+            best_action = np.argmax(policy[state])
+        else:
+            print(f"State {state} not in learned policy; defaulting to STAY.")
+            best_action = env.actions.index(0)
+
+        action = env.actions[best_action]
         print(f"Step {steps}: Agent at {state}, taking action {action}")
 
         next_state, reward, done = env.get_next_state(state, action)
@@ -90,10 +95,10 @@ def simulate_agent(env, policy):
 
         if done:
             print(f"\nGame Over! Final State: {next_state}, Total Reward: {total_reward}, Steps Taken: {steps}\n")
-            env.print_state(next_state)  # Final game state
+            env.print_state(next_state)
             break
 
-        state = next_state  # Move to next state
+        state = next_state
 
 def inspect_policy(policy, env):
     """Prints the learned policy's action probabilities for each state."""

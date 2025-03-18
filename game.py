@@ -63,9 +63,9 @@ class MDPGame:
             reward = 100
         else:
             if action == self.STAY:
-                reward = -0.1
+                reward = 0
             else:
-                reward = -2 # moving causes a small penalty to avoid pointless moves
+                reward = -1 # moving causes a small penalty to avoid pointless moves
 
         return reward, done
     
