@@ -2,7 +2,7 @@ import numpy as np
 import random
 from collections import defaultdict
 
-def print_V(policy, env):
+def print_policy(policy, env):
     """Prints the policy as a visual grid."""
     grid = np.full((env.height, env.width), " ", dtype=str)
     action_symbols = {env.LEFT: "←", env.STAY: "•", env.RIGHT: "→"}
@@ -84,11 +84,12 @@ def sum_Q(Qs):
     return summed_Q
 
 
-def reduce_Q_to_V(Q, game):
+def Q_to_policy(Q, game):
     """reduces Q to V by choosing the action with the highes Q value"""
     V = {}
     for state in [(y, x) for y in range(game.height) for x in range(game.width)]:
         V[state] = max(Q[state], key=Q[state].get) if state in Q and len(Q[state]) > 0 else 0
 
     return V
+
         

@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
     # Q = sarsa(env, episodes=10000, alpha=0.1, gamma=0.95, epsilon=0.15) # These parameters solved hard_level
     Q = sarsa(env, episodes=1000, alpha=0.1, gamma=0.99, epsilon=0.1)
-    V = reduce_Q_to_V(Q, env)
+    policy = Q_to_policy(Q, env)
 
-    print_V(V, env)
-    test_policy(V, env, count_partial_success=True)
+    print_policy(policy, env)
+    test_policy(policy, env, count_partial_success=True)
