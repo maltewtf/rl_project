@@ -6,43 +6,28 @@ class MDPGame:
     LEFT = -1
     RIGHT = 1
 
-    def __init__(self):
-        self.level = [
-            (0, 0, 0, 0, 0, 0, 0),
-            (0, 0, 0, 0, 0, 0, 0),
-            (0, 1, 0, 1, 1, 0, 1),
-            (0, 0, 0, 0, 0, 0, 0),
-            (0, 0, 0, 0, 0, 0, 0),
-            (1, 1, 0, 1, 0, 1, 0),
-            (0, 0, 0, 0, 0, 0, 0),
-            (0, 0, 0, 0, 0, 0, 0),
-            (0, 1, 1, 1, 1, 0, 0),
-            (0, 0, 0, 0, 0, 0, 0),
-            (1, 0, 1, 0, 0, 1, 1),
-            (0, 0, 0, 0, 0, 0, 0),
-            (0, 0, 0, 0, 0, 0, 0),
-            (1, 1, 1, 0, 0, 1, 1),
-            (0, 0, 0, 0, 0, 0, 0),
-            (0, 0, 0, 0, 0, 0, 0),
-            (1, 1, 0, 1, 0, 1, 0),
-            (0, 0, 0, 0, 0, 0, 0),
-            (0, 0, 0, 0, 0, 0, 0),
-            (1, 1, 0, 1, 1, 1, 1)
-        ]
+    def __init__(self, random_x=False):
+        self.random_x = random_x
+        self.level = initial_level
         self.width = len(self.level[0])
         self.height = len(self.level)
         self.actions = [self.LEFT, self.STAY, self.RIGHT]
-        self.state = (0, 1)  # Start at the top center
         self.reward = []
+        self.reset() # initiate player position
 
-    def reset(self):
+    def reset(self, specific_x=None):
         """Resets the game to the starting position"""
-        self.state = (0, 1)
+        if specific_x != None:
+            self.state = (0, specific_x)# if x value given, start there
+        elif self.random_x:
+            self.state = (0, random.randint(0, self.width-1)) # if random start in a random x position
+        else:
+            self.state = (0, self.width // 2) # if nothing given start in the centre
         return self.state
 
     def step(self, action):
         """Calculates the next step according to the action and applies it to the state of the game"""
-        self.state, reward, _ = self.get_next_state(self, self.state, action)
+        self.state, reward, _ = self.get_next_state(self.state, action)
         return reward
 
     def evaluate_action(self, state, action):
@@ -57,11 +42,16 @@ class MDPGame:
             reward = 100
         else:
             if action == self.STAY:
-                reward = -0.1
+                reward = 0
             else:
-                reward = -2 # moving causes a small penalty to avoid pointless moves
+                reward = -1 # moving causes a small penalty to avoid pointless moves
 
         return reward, done
+    
+    def load_level(self, level):
+        self.level = level
+        self.height = len(level)
+        self.width = len(level[0])
 
     def get_next_state(self, state, action):
         """Simulate transition without modifying the real state"""
@@ -78,7 +68,7 @@ class MDPGame:
 
     def terminal(self, state):
         """"Boolean True if at a terminal state, False otherwise"""
-        y, x = self.state
+        y, x = state
         if self.level[y][x] == 1 or y == self.height - 1:
             return True
         return False
@@ -112,3 +102,92 @@ class MDPGame:
                 row[agent_position[1]] = "X"  # Mark agent's position
             print(f"|{''.join(row)}|")
         print("\n")
+
+initial_level = [
+            (0, 0, 0, 0, 0, 0, 0),
+            (0, 0, 0, 0, 0, 0, 0),
+            (0, 1, 0, 1, 1, 0, 1),
+            (0, 0, 0, 0, 0, 0, 0),
+            (0, 0, 0, 0, 0, 0, 0),
+            (1, 1, 0, 1, 0, 1, 0),
+            (0, 0, 0, 0, 0, 0, 0),
+            (0, 0, 0, 0, 0, 0, 0),
+            (0, 1, 1, 1, 1, 0, 0),
+            (0, 0, 0, 0, 0, 0, 0),
+            (1, 0, 1, 0, 0, 1, 1),
+            (0, 0, 0, 0, 0, 0, 0),
+            (0, 0, 0, 0, 0, 0, 0),
+            (1, 1, 1, 0, 0, 1, 1),
+            (0, 0, 0, 0, 0, 0, 0),
+            (0, 0, 0, 0, 0, 0, 0),
+            (1, 1, 0, 1, 0, 1, 0),
+            (0, 0, 0, 0, 0, 0, 0),
+            (0, 0, 0, 0, 0, 0, 0),
+            (1, 1, 0, 1, 1, 1, 1)
+        ]
+
+hard_level = [
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 1, 1, 0, 0, 0, 1),
+    (0, 0, 0, 0, 0, 1, 1),
+    (1, 0, 0, 0, 0, 0, 0),
+    (0, 0, 1, 1, 1, 0, 0),
+    (0, 1, 1, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (1, 0, 0, 1, 0, 0, 0),
+    (0, 0, 0, 1, 1, 1, 1),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 1, 0),
+    (0, 0, 0, 0, 0, 1, 0),
+    (0, 0, 0, 0, 0, 1, 0),
+    (1, 1, 1, 1, 1, 1, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 1, 1),
+    (0, 0, 0, 0, 1, 0, 0),
+]
+
+long_level = [
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 1, 1, 0, 0, 0, 1),
+    (0, 0, 0, 0, 0, 1, 1),
+    (1, 0, 0, 0, 0, 0, 0),
+    (0, 0, 1, 1, 1, 0, 0),
+    (0, 1, 1, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (1, 0, 0, 1, 0, 0, 0),
+    (0, 0, 0, 1, 1, 1, 1),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 1, 0),
+    (0, 0, 0, 0, 0, 1, 0),
+    (0, 0, 0, 0, 0, 1, 0),
+    (1, 1, 1, 1, 1, 1, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 1, 1),
+    (0, 0, 0, 0, 1, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 1, 0, 1, 1, 0, 1),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (1, 1, 0, 1, 0, 1, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 1, 1, 1, 1, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (1, 0, 1, 0, 0, 1, 1),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (1, 1, 1, 0, 0, 1, 1),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (1, 1, 0, 1, 0, 1, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0, 0, 0),
+    (1, 1, 0, 1, 1, 1, 1)
+]

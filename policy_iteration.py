@@ -78,10 +78,15 @@ def simulate_agent(env, policy):
     print("\nAgent Simulation:\n")
 
     while True:
-        env.print_state(state)  # Print current state
-        best_action = np.argmax(policy[state])  # Choose best action
-        action = env.actions[best_action]
+        env.print_state(state)
 
+        if state in policy:
+            best_action = np.argmax(policy[state])
+        else:
+            print(f"State {state} not in learned policy; defaulting to STAY.")
+            best_action = env.actions.index(0)
+
+        action = env.actions[best_action]
         print(f"Step {steps}: Agent at {state}, taking action {action}")
 
         next_state, reward, done = env.get_next_state(state, action)
@@ -90,10 +95,10 @@ def simulate_agent(env, policy):
 
         if done:
             print(f"\nGame Over! Final State: {next_state}, Total Reward: {total_reward}, Steps Taken: {steps}\n")
-            env.print_state(next_state)  # Final game state
+            env.print_state(next_state)
             break
 
-        state = next_state  # Move to next state
+        state = next_state
 
 def inspect_policy(policy, env):
     """Prints the learned policy's action probabilities for each state."""
@@ -134,3 +139,41 @@ def print_policy_grid(policy, env):
     for y in range(env.height):
         print(" ".join(grid[y]))
     print("\n")
+
+def value_iteration(env, gamma=0.99, theta=1e-6):
+    """Finds the optimal policy using Value Iteration."""
+    V = defaultdict(float)
+    states, actions = env.get_states_actions()
+
+    while True:
+        delta = 0
+
+        for state in states:
+            v = V[state]  # Expected return for this state
+
+            q_values = np.zeros(len(actions))  # Store Q-values for all actions
+
+            for action_idx, action in enumerate(actions):
+                next_state, reward, done = env.get_next_state(state, action)
+
+                # Compute Q-values correctly
+                q_values[action_idx] = reward + gamma * V[next_state] * (not done)
+
+            V[state] = max(q_values)  # Update state value
+
+            delta = max(delta, abs(v - V[state]))
+
+        if delta < theta:
+            break
+
+    # Extract the optimal policy
+    policy = {}
+    for state in states:
+        q_values = np.zeros(len(actions))
+        for action_idx, action in enumerate(actions):
+            next_state, reward, done = env.get_next_state(state, action)
+            q_values[action_idx] = reward + gamma * V[next_state] * (not done)
+        best_action = np.argmax(q_values)
+        policy[state] = np.eye(len(actions))[best_action]  # One-hot encoding
+
+    return policy, V

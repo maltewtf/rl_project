@@ -2,20 +2,26 @@ from collections import defaultdict
 import numpy as np
 import matplotlib.pyplot as plt
 
-def mc_prediction(env, gamma=0.99, num_sim=500):
-    """Monte Carlo prediction algorithm that estimates state values."""
+def mc_prediction(env, policy, gamma=0.99, num_episodes=500):
     V = defaultdict(float)
     returns = defaultdict(list)
 
-    for _ in range(num_sim):
-        episode = env.sample_episode()
+    for _ in range(num_episodes):
+        episode = []
+        state = env.reset()
+        done = False
+
+        while not done:
+            action_probs = policy[state]
+            action = np.random.choice(env.actions, p=action_probs)
+            next_state, reward, done = env.get_next_state(state, action)
+            episode.append((state, action, reward))
+            state = next_state
+
         G = 0
         visited = set()
-
-        for t in reversed(range(len(episode))):
-            s, a, r = episode[t]
+        for s, a, r in reversed(episode):
             G = r + gamma * G
-
             if s not in visited:
                 returns[s].append(G)
                 V[s] = np.mean(returns[s])
@@ -23,58 +29,46 @@ def mc_prediction(env, gamma=0.99, num_sim=500):
 
     return V
 
-def mc_control(env, gamma=0.99, epsilon=0.1, num_sim=500):
-    """Monte Carlo Control"""
-    Q = defaultdict(lambda: np.zeros(len(env.actions)))
-    returns = defaultdict(list)
 
-    for _ in range(num_sim):
-        episode = env.sample_episode()
-        G = 0
-        visited = set()
-
-        for t in reversed(range(len(episode))):
-            s, a, r = episode[t]
-            G = r + gamma * G
-
-            if (s, a) not in visited:
-                returns[(s, a)].append(G)
-                Q[s][env.actions.index(a)] = np.mean(returns[(s, a)])
-                visited.add((s, a))
-
-        for s in Q:
-            if np.random.rand() < epsilon:
-                best_action = np.random.choice(env.actions)
-            else:
-                best_action = env.actions[np.argmax(Q[s])]
-
-            Q[s] = np.eye(len(env.actions))[env.actions.index(best_action)]
-
-    return Q
-
-def mc_policy_improvement(env, V, gamma=0.99):
-    """Derives a greedy policy from the estimated value function V"""
+def mc_control(env, gamma=0.99, epsilon=0.1, num_iterations=10, episodes_per_iteration=500):
+    # Initialize a random policy
     policy = {}
     states, actions = env.get_states_actions()
-
     for state in states:
-        Q_values = np.zeros(len(actions))
+        policy[state] = np.ones(len(actions)) / len(actions)
 
-        for action_idx, action in enumerate(actions):
-            next_state, reward, done = env.get_next_state(state, action)
+    Q = defaultdict(lambda: np.zeros(len(actions)))
+    returns = defaultdict(list)
 
-            if env.level[next_state[0]][next_state[1]] == 1:
-                Q_values[action_idx] = -float('inf')
-            else:
-                Q_values[action_idx] = reward + gamma * V[next_state] * (not done)
+    for iteration in range(num_iterations):
+        V = mc_prediction(env, policy, gamma, episodes_per_iteration)
 
-        best_action = np.argmax(Q_values)
-        policy[state] = np.eye(len(actions))[best_action]
+        # MC Control step (policy improvement)
+        for state in states:
+            Q_values = np.zeros(len(actions))
 
-    return policy
+            for action_idx, action in enumerate(actions):
+                next_state, reward, done = env.get_next_state(state, action)
+                if done:
+                    Q_values[action_idx] = reward
+                else:
+                    Q_values[action_idx] = reward + gamma * V[next_state]
 
+            best_action = np.argmax(Q_values)
+
+            # Epsilon-greedy policy update
+            policy[state] = np.ones(len(actions)) * epsilon / len(actions)
+            policy[state][best_action] += 1.0 - epsilon
+
+            Q[state] = Q_values
+
+        print(f"Iteration {iteration+1}/{num_iterations} completed.")
+
+    return policy, Q_to_V(Q, env)
+
+
+# Helper to convert Q to V
 def Q_to_V(Q, env):
-    """Convert Q(s, a) to V(s) by taking max Q-value for each state."""
     V = {}
     for state in [(y, x) for y in range(env.height) for x in range(env.width)]:
         V[state] = max(Q[state]) if state in Q else 0
