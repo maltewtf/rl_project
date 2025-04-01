@@ -46,7 +46,7 @@ def double_q_learning(env: MDPGame, episodes, alpha, gamma, epsilon):
     return sum_Q([Q1, Q2])
 
 def q_learning_until_pass(env: MDPGame, expected_pass_rate, alpha, gamma, epsilon):
-    assert expected_pass_rate <= 1
+    assert expected_pass_rate < 1
     pass_rate = 0
     episodes = 0
     Q = defaultdict(lambda: defaultdict(lambda: 0)) # Q(s, a)
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     env = MDPGame(random_x=True)
     env.load_level(hard_level)
 
-    Q = q_learning_until_pass(env, expected_pass_rate=0.95, alpha=0.1, gamma=0.99, epsilon=0.1)
+    Q = q_learning_until_pass(env, expected_pass_rate=0.99, alpha=0.1, gamma=0.99, epsilon=0.1)
     policy = Q_to_policy(Q, env)
     print_policy(policy, env)
     # test_policy(policy, env, count_partial_success=True)

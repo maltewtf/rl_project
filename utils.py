@@ -10,20 +10,10 @@ def print_policy(policy, env):
 
     for (y, x) in policy:
         if env.level[y][x] == 1:
+            # grid[y, x] = "_"  # Obstacle
             grid[y, x] = "\u2586"  # Obstacle
         else:
-            grid[y][x] = action_symbols[policy[(y, x)]]
-            # action_probabilities = policy[(y, x)]
-
-            # # Check if policy is an array and get the best action
-            # if isinstance(action_probabilities, (np.ndarray, list)):
-            #     best_action_index = np.argmax(action_probabilities)
-            #     action = env.actions[best_action_index]
-            # else:
-            #     # Fallback if policy directly contains action integers
-            #     action = action_probabilities
-
-            # grid[y, x] = action_symbols[action]
+            grid[y, x] = action_symbols[policy[(y, x)]]
 
     print("\n--- Policy Grid ---\n")
     for y in range(env.height):
@@ -106,28 +96,16 @@ def sum_Q(Qs):
     return summed_Q
 
 
-def Q_to_policy(Q, env):
-    """Converts Q-values into a greedy one-hot encoded policy compatible with inspect_policy."""
-    policy = {} # no default dict needed as we fill each value anyways
-    for state in [(y, x) for y in range(env.height) for x in range(env.width)]:
-        policy[state] = argmax(Q[state])
+def Q_to_policy(Q, game):
+    """reduces Q to V by choosing the action with the highes Q value"""
+    policy = {}
+    for state in [(y, x) for y in range(game.height) for x in range(game.width)]:
+        policy[state] = max(Q[state], key=Q[state].get) if state in Q and len(Q[state]) > 0 else 0
+
     return policy
 
 def V_to_policy(V, env):
-    # """Converts Q-values into a greedy one-hot encoded policy compatible with inspect_policy."""
-    # policy = {}
-    # num_actions = len(env.actions)
-
-    # for state, action_dict in Q.items():
-    #     q_values_array = np.array([action_dict[a] for a in env.actions])
-    #     best_action_index = int(np.argmax(q_values_array))
-    #     one_hot_policy = np.zeros(num_actions)
-    #     one_hot_policy[best_action_index] = 1.0
-    #     policy[state] = one_hot_policy
-
-    # return policy
     pass
-
 
 def print_V(V, env):
     """Prints the value function as a visual grid."""

@@ -25,22 +25,14 @@ def mc_control_epsilon_greedy(env, num_episodes, epsilon, gamma):
     Returns:
         Q      : A dictionary mapping each state to a NumPy array of action-values.
                  For example, Q[s][a] is the estimated return from taking action a in state s.
-        policy : A dictionary mapping each state to a one-hot encoded NumPy array that
-                 represents the greedy action with respect to Q.
     """
-    # Number of possible actions
-    num_actions = len(env.actions)
 
-    # Initialize Q(s,a) as a defaultdict of zero arrays of length num_actions.
-    # Q = defaultdict(lambda: np.zeros(num_actions))
-    Q = defaultdict(lambda: defaultdict(lambda: 0))
+    Q = defaultdict(lambda: defaultdict(int)) # Q(s, a)
 
-    # For each state-action pair, track cumulative return and counts (for averaging)
-    returns_sum = defaultdict(float)
-    returns_count = defaultdict(float)
+    returns = defaultdict(list)
 
-    epsilon_end = 0.01
-    epsilon_decay = 0.99995 # added epsilon decay to transition from exploration to exploitation
+    # epsilon_end = 0.01
+    # epsilon_decay = 0.99995 # added epsilon decay to transition from exploration to exploitation
 
     for i_episode in range(num_episodes):
         episode = []
@@ -50,69 +42,36 @@ def mc_control_epsilon_greedy(env, num_episodes, epsilon, gamma):
 
         # Generate an episode using the current ε-greedy policy.
         while not done:
-            # Select an action according to the ε-greedy rule.
-            if random.random() < epsilon:
-                action_index = random.randint(0, num_actions - 1)
-            else:
-                # action_index = int(np.argmax(Q[state]))
-                action_index = epsilon_greedy_policy(Q, state, 1)
-            action = env.actions[action_index]
-
-            # Get the next state, reward, and terminal flag from the environment.
+            # generat A_t and use it to get S_t+1, R_t+1
+            action = epsilon_greedy_policy(Q, state, epsilon)
             next_state, reward, done = env.get_next_state(state, action)
 
-            # Append this step to the episode (store state, action index, and reward).
-            episode.append((state, action_index, reward))
+            episode.append((state, action, reward))
             state = next_state
 
-        epsilon = max(epsilon_end, epsilon * epsilon_decay)
+        # epsilon = max(epsilon_end, epsilon * epsilon_decay)
 
         # First-visit MC update: traverse the episode in reverse order.
         visited = set()  # to record (state, action_index) pairs already updated in this episode
-        G = 0.0  # cumulative discounted return
-        for (s, a, r) in reversed(episode):
-            G = gamma * G + r
+        G = 0  # cumulative discounted return
+        for state, action, reward in reversed(episode):
+            G = gamma * G + reward
+
             # Update only on the first occurrence of (s, a)
-            if (s, a) not in visited:
-                returns_sum[(s, a)] += G
-                returns_count[(s, a)] += 1.0
-                Q[s][a] = returns_sum[(s, a)] / returns_count[(s, a)]
-                visited.add((s, a))
+            if not (state, action) in visited:
+                returns[(state, action)].append(G)
+                Q[state][action] = np.average(returns[(state, action)])
 
-        # Optional: Print progress every 1000 episodes
-        if (i_episode + 1) % 1000 == 0:
-            print(f"Episode {i_episode + 1}/{num_episodes} completed.")
+                visited.add((state, action))
 
-    # Derive the final (greedy) policy from Q:
-    # For each state, choose the action with the highest Q-value.
-    policy = {}
-    for s, action_values in Q.items():
-        best_action_index = int(np.argmax(action_values))
-        one_hot = np.zeros(num_actions)
-        one_hot[best_action_index] = 1.0
-        policy[s] = one_hot
-
-    return Q, policy
-
-def q_to_policy(Q, env):
-    """
-    Converts a Q-function to a greedy policy.
-
-    For each state, chooses the action with the maximum Q-value,
-    and returns a dictionary mapping state -> action (as defined in env.actions).
-    """
-    policy = {}
-    for state, action_values in Q.items():
-        best_action_index = int(np.argmax(action_values))
-        policy[state] = env.actions[best_action_index]
-    return policy
+    return Q
+        
 
 if __name__ == "__main__":
     env = MDPGame(random_x=True)
+    env.load_level(hard_level)
+    Q = mc_control_epsilon_greedy(env, 2000, epsilon=0.2, gamma=0.99)
 
-    Q, policy = mc_control_epsilon_greedy(env, 900, 0.01, 0.99)
-    
     test_policy(Q_to_policy(Q, env), env)
+    print_policy(Q_to_policy(Q, env), env)
 
-    print_policy(policy, env)
-    print(Q[(0, 0)])
