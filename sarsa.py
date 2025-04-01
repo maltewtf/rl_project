@@ -13,9 +13,9 @@ def sarsa(env: MDPGame, episodes, alpha, gamma, epsilon):
         while not done:
             next_state, reward, done = env.get_next_state(state, action)
             next_action = epsilon_greedy_policy(Q, next_state, epsilon)
-            
+
             # Q(S, A) += alpha * (R + gamma * Q(S', A') - Q(S, A))
-            Q[state][action] += alpha * (reward + gamma * Q[next_state][next_action] - Q[state][action])            
+            Q[state][action] += alpha * (reward + gamma * Q[next_state][next_action] - Q[state][action])
 
             state = next_state
             action = next_action

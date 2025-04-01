@@ -2,6 +2,7 @@ import numpy as np
 import random
 from collections import defaultdict
 
+
 def print_policy(policy, env):
     """Prints the policy as a visual grid."""
     grid = np.full((env.height, env.width), " ", dtype=str)
@@ -9,10 +10,19 @@ def print_policy(policy, env):
 
     for (y, x) in policy:
         if env.level[y][x] == 1:
-            # grid[y, x] = "_"  # Obstacle
             grid[y, x] = "\u2586"  # Obstacle
         else:
-            grid[y, x] = action_symbols[policy[(y, x)]]
+            action_probabilities = policy[(y, x)]
+
+            # Check if policy is an array and get the best action
+            if isinstance(action_probabilities, (np.ndarray, list)):
+                best_action_index = np.argmax(action_probabilities)
+                action = env.actions[best_action_index]
+            else:
+                # Fallback if policy directly contains action integers
+                action = action_probabilities
+
+            grid[y, x] = action_symbols[action]
 
     print("\n--- Policy Grid ---\n")
     for y in range(env.height):
@@ -21,12 +31,12 @@ def print_policy(policy, env):
 
 def test_policy(policy, env, test_all_starts=True, silent=False, count_partial_success=False):
     """
-    runs the game with a given policy and then returns a success ratio.
+    Runs the game with a given policy and returns a success ratio.
 
     Parameters:
-        test_all_starts: when True, test all possible starting possition and return the passrate of all together.
-        silent: when True, dont print anything at the end.
-        count_partial_success: when True, in addion to adding 1 for completing the level also add the achieved player hight/level height on death to the pass rate.
+        test_all_starts: When True, tests all possible starting positions and returns the success rate.
+        silent: When True, doesn't print anything at the end.
+        count_partial_success: When True, counts partial success based on how far the agent progressed.
     """
 
     if test_all_starts:
@@ -41,7 +51,17 @@ def test_policy(policy, env, test_all_starts=True, silent=False, count_partial_s
         state = env.reset(start_x)
 
         while not done:
-            state, reward, done = env.get_next_state(state, policy[state])
+            if state in policy:
+                action_probs = policy[state]
+                if isinstance(action_probs, (np.ndarray, list)):
+                    action_index = np.argmax(action_probs)
+                    action = env.actions[action_index]
+                else:
+                    action = action_probs
+            else:
+                action = env.STAY  # default action if state is missing
+
+            state, reward, done = env.get_next_state(state, action)
 
         if reward > 0:
             success += 1
@@ -52,7 +72,7 @@ def test_policy(policy, env, test_all_starts=True, silent=False, count_partial_s
         # print(f"level completion: {success:.2f}/{len(starts)}")
         print(f"completion rate: {success/len(starts):.2f}")
 
-    return success/(len(starts))
+    return success / len(starts)
 
 def epsilon_greedy_policy(Q, state, epsilon):
     if random.uniform(0, 1) < epsilon:
@@ -85,11 +105,31 @@ def sum_Q(Qs):
 
 
 def Q_to_policy(Q, game):
-    """reduces Q to V by choosing the action with the highes Q value"""
-    V = {}
-    for state in [(y, x) for y in range(game.height) for x in range(game.width)]:
-        V[state] = max(Q[state], key=Q[state].get) if state in Q and len(Q[state]) > 0 else 0
+    """Converts Q-values into a greedy one-hot encoded policy compatible with inspect_policy."""
+    policy = {}
+    num_actions = len(game.actions)
 
-    return V
+    for state, action_dict in Q.items():
+        q_values_array = np.array([action_dict[a] for a in game.actions])
+        best_action_index = int(np.argmax(q_values_array))
+        one_hot_policy = np.zeros(num_actions)
+        one_hot_policy[best_action_index] = 1.0
+        policy[state] = one_hot_policy
 
+    return policy
+
+def print_V(V, env):
+    """Prints the value function as a visual grid."""
+    grid = np.zeros((env.height, env.width), dtype=float)
+
+    for (y, x), value in V.items():
+        if env.level[y][x] == 1:
+            grid[y, x] = np.nan  # obstacle
+        else:
+            grid[y, x] = value
+
+    print("\n--- Optimal V (Value Function) Grid ---\n")
+    for row in grid:
+        print(" ".join(["{:6.2f}".format(v) if not np.isnan(v) else "  X   " for v in row]))
+    print("\n")
         

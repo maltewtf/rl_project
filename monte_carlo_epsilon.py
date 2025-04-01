@@ -37,10 +37,13 @@ def mc_control_epsilon_greedy(env, num_episodes, epsilon, gamma):
     returns_sum = defaultdict(float)
     returns_count = defaultdict(float)
 
+    epsilon_end = 0.01
+    epsilon_decay = 0.99995 # added epsilon decay to transition from exploration to exploitation
+
     for i_episode in range(num_episodes):
         episode = []
-        # Start an episode with the environment's natural starting state
-        state = env.reset(4)
+        # Start an episode in a random location to ensure maximum exploarabiliy
+        state = env.reset()
         done = False
 
         # Generate an episode using the current ε-greedy policy.
@@ -58,6 +61,8 @@ def mc_control_epsilon_greedy(env, num_episodes, epsilon, gamma):
             # Append this step to the episode (store state, action index, and reward).
             episode.append((state, action_index, reward))
             state = next_state
+
+        epsilon = max(epsilon_end, epsilon * epsilon_decay)
 
         # First-visit MC update: traverse the episode in reverse order.
         visited = set()  # to record (state, action_index) pairs already updated in this episode
