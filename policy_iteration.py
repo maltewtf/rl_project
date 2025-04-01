@@ -71,7 +71,7 @@ def policy_iteration(env, gamma=0.99, theta=1e-6):
 
 def simulate_agent(env, policy):
     """Simulates an agent playing the game using the learned policy."""
-    state = env.reset()  # Start at initial position
+    state = env.reset()  # Start at the initial position
     total_reward = 0
     steps = 0
 
