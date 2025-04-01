@@ -12,17 +12,18 @@ def print_policy(policy, env):
         if env.level[y][x] == 1:
             grid[y, x] = "\u2586"  # Obstacle
         else:
-            action_probabilities = policy[(y, x)]
+            grid[y][x] = action_symbols[policy[(y, x)]]
+            # action_probabilities = policy[(y, x)]
 
-            # Check if policy is an array and get the best action
-            if isinstance(action_probabilities, (np.ndarray, list)):
-                best_action_index = np.argmax(action_probabilities)
-                action = env.actions[best_action_index]
-            else:
-                # Fallback if policy directly contains action integers
-                action = action_probabilities
+            # # Check if policy is an array and get the best action
+            # if isinstance(action_probabilities, (np.ndarray, list)):
+            #     best_action_index = np.argmax(action_probabilities)
+            #     action = env.actions[best_action_index]
+            # else:
+            #     # Fallback if policy directly contains action integers
+            #     action = action_probabilities
 
-            grid[y, x] = action_symbols[action]
+            # grid[y, x] = action_symbols[action]
 
     print("\n--- Policy Grid ---\n")
     for y in range(env.height):
@@ -79,7 +80,8 @@ def epsilon_greedy_policy(Q, state, epsilon):
         return random.randint(-1, 1) # choose random action
     else:
         # returns the key of the maximum value in the dictionary 
-        return max(Q[state], key=Q[state].get) if state in Q else 0
+        # return max(Q[state], key=Q[state].get) if state in Q else 0
+        return argmax(Q[state])
     
 def n_epsilon_greedy_policy(Qs, state, epsilon):
     """applies epsilon greedy strategy to the sum of multiple Qs"""
@@ -104,19 +106,28 @@ def sum_Q(Qs):
     return summed_Q
 
 
-def Q_to_policy(Q, game):
+def Q_to_policy(Q, env):
     """Converts Q-values into a greedy one-hot encoded policy compatible with inspect_policy."""
-    policy = {}
-    num_actions = len(game.actions)
-
-    for state, action_dict in Q.items():
-        q_values_array = np.array([action_dict[a] for a in game.actions])
-        best_action_index = int(np.argmax(q_values_array))
-        one_hot_policy = np.zeros(num_actions)
-        one_hot_policy[best_action_index] = 1.0
-        policy[state] = one_hot_policy
-
+    policy = {} # no default dict needed as we fill each value anyways
+    for state in [(y, x) for y in range(env.height) for x in range(env.width)]:
+        policy[state] = argmax(Q[state])
     return policy
+
+def V_to_policy(V, env):
+    # """Converts Q-values into a greedy one-hot encoded policy compatible with inspect_policy."""
+    # policy = {}
+    # num_actions = len(env.actions)
+
+    # for state, action_dict in Q.items():
+    #     q_values_array = np.array([action_dict[a] for a in env.actions])
+    #     best_action_index = int(np.argmax(q_values_array))
+    #     one_hot_policy = np.zeros(num_actions)
+    #     one_hot_policy[best_action_index] = 1.0
+    #     policy[state] = one_hot_policy
+
+    # return policy
+    pass
+
 
 def print_V(V, env):
     """Prints the value function as a visual grid."""
@@ -130,6 +141,9 @@ def print_V(V, env):
 
     print("\n--- Optimal V (Value Function) Grid ---\n")
     for row in grid:
-        print(" ".join(["{:6.2f}".format(v) if not np.isnan(v) else "  X   " for v in row]))
+        print(" ".join([f"{v:6.2f}" if not np.isnan(v) else "  X   " for v in row]))
     print("\n")
         
+def argmax(d, default=0):
+    """returns the key with the highest associated value (sadly the np.argmax function does not work on dictionaries)"""
+    return max(d, key=d.get) if len(d) > 0 else default

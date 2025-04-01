@@ -110,7 +110,7 @@ def q_to_policy(Q, env):
 if __name__ == "__main__":
     env = MDPGame(random_x=True)
 
-    Q, policy = mc_control_epsilon_greedy(env, 900, 0.01, 0.99)
+    Q, policy = mc_control_epsilon_greedy(env, 500, 0.01, 0.99)
     
     test_policy(Q_to_policy(Q, env), env)
 
