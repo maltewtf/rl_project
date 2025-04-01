@@ -26,8 +26,7 @@ if __name__ == "__main__":
     env = MDPGame(random_x=True)
     env.load_level(hard_level)
 
-    # Q = sarsa(env, episodes=10000, alpha=0.1, gamma=0.95, epsilon=0.15) # These parameters solved hard_level
-    Q = sarsa(env, episodes=1000, alpha=0.1, gamma=0.99, epsilon=0.1)
+    Q = sarsa(env, episodes=10000, alpha=0.1, gamma=0.95, epsilon=0.15) # These parameters solved hard_level
     policy = Q_to_policy(Q, env)
 
     print_policy(policy, env)

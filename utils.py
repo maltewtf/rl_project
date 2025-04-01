@@ -49,7 +49,8 @@ def test_policy(policy, env, test_all_starts=True, silent=False, count_partial_s
             success += state[0] / env.height
 
     if not silent:
-        print(f"level completion: {success}/{len(starts)}")
+        # print(f"level completion: {success:.2f}/{len(starts)}")
+        print(f"completion rate: {success/len(starts):.2f}")
 
     return success/(len(starts))
 
@@ -65,12 +66,11 @@ def n_epsilon_greedy_policy(Qs, state, epsilon):
     if random.uniform(0, 1) < epsilon:
         return random.randint(-1, 1) # choose random action
     else:
-        summed_Q = defaultdict(lambda: 0)
-        for actions in [Q[state] for Q in Qs]:
-            for key in actions.keys():
-                summed_Q[key] += actions[key]
-
-        return max(summed_Q[state], key=summed_Q[state].get) if state in summed_Q else 0
+        summed_action_values = defaultdict(lambda: 0)
+        for action_values in [Q[state] for Q in Qs]: 
+            for action in action_values.keys():
+                summed_action_values[action] += action_values[action]
+        return max(summed_action_values, key=summed_action_values.get) if len(action_values) > 0 else 0
     
 def sum_Q(Qs):
     """returns the sum of Q-values of a list of state action spaces"""
