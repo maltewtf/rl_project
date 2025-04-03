@@ -115,4 +115,7 @@ if __name__ == "__main__":
     print_policy(policy, env)
     print_V(V, env)
 
+    result = evaluate_DP(env, policy_iteration, n=10, gamma=0.99, theta=1e-6)
+    print(result)
+
     # simulate_agent(env, policy)
