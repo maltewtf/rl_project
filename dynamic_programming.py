@@ -1,34 +1,31 @@
 from collections import defaultdict
 import numpy as np
-from game import MDPGame
+from game import MDPGame, hard_level
 from utils import *
+from utils import print_policy
 
-def policy_evaluation(env, policy, gamma=0.99, theta=1e-6):
-    V = defaultdict(float)
+def policy_evaluation(env, policy, gamma=0.99, theta=1e-10):
+    states, _ = env.get_states_actions()
+    V = {state: 0.0 for state in states}
 
     while True:
         delta = 0
-        for state in policy:
+        for state in states:
+            v = V[state]
+            action = policy[state]
+            next_state, reward, done = env.get_next_state(state, action)
 
-            v = 0  # Expected return for this state
+            if done:
+                V[state] = reward
+            else:
+                V[state] = reward + gamma * V[next_state]
 
-            for action_idx, action_prob in enumerate(policy[state]):
-                action = env.actions[action_idx]
-                next_state, reward, done = env.get_next_state(state, action)
-
-                if done:
-                    v += action_prob * reward  # If terminal, use reward directly
-                else:
-                    v += action_prob * (reward + gamma * V[next_state])
-
-            delta = max(delta, abs(V[state] - v))
-            V[state] = v
+            delta = max(delta, abs(v - V[state]))
 
         if delta < theta:
             break
 
     return V
-
 
 def policy_improvement(env, V, gamma=0.99):
     """Improves policy by choosing the greedy action based on V(s)."""
@@ -46,100 +43,29 @@ def policy_improvement(env, V, gamma=0.99):
 
         # Select the best action greedily
         best_action = np.argmax(Q_values)
-        policy[state] = np.eye(len(actions))[best_action]  # One-hot encoding
+        policy[state] = actions[best_action]
 
     return policy
-
 
 def policy_iteration(env, gamma=0.99, theta=1e-6):
     """Finds the optimal policy using Policy Iteration."""
     states, actions = env.get_states_actions()
 
     # Initialize a random policy (equal probability for all actions)
-    policy = {state: np.ones(len(actions)) / len(actions) for state in states}
+    policy = {state: 0 for state in states}
 
     while True:
         V = policy_evaluation(env, policy, gamma, theta)  # Evaluate policy
         new_policy = policy_improvement(env, V, gamma)  # Improve policy
 
         # Check convergence
-        if all(np.array_equal(policy[s], new_policy[s]) for s in policy):
+        if all(policy[s] == new_policy[s] for s in policy):
             break
 
         policy = new_policy  # Update policy
 
     return policy, V
 
-def simulate_agent(env, policy):
-    """Simulates an agent playing the game using the learned policy."""
-    state = env.reset()  # Start at the initial position
-    total_reward = 0
-    steps = 0
-
-    print("\nAgent Simulation:\n")
-
-    while True:
-        env.print_state(state)
-
-        if state in policy:
-            best_action = np.argmax(policy[state])
-        else:
-            print(f"State {state} not in learned policy; defaulting to STAY.")
-            best_action = env.actions.index(0)
-
-        action = env.actions[best_action]
-        print(f"Step {steps}: Agent at {state}, taking action {action}")
-
-        next_state, reward, done = env.get_next_state(state, action)
-        total_reward += reward
-        steps += 1
-
-        if done:
-            print(f"\nGame Over! Final State: {next_state}, Total Reward: {total_reward}, Steps Taken: {steps}\n")
-            env.print_state(next_state)
-            break
-
-        state = next_state
-
-def inspect_policy(policy, env):
-    """Prints the learned policy's action probabilities for each state."""
-    print("\n--- Policy Inspection ---\n")
-    action_names = {env.LEFT: "←", env.STAY: "•", env.RIGHT: "→"}
-
-    for state in sorted(policy.keys()):
-        action_probs = policy[state]  # Action probabilities
-        action_str = ", ".join(
-            [f"{action_names[env.actions[i]]}: {p:.2f}" for i, p in enumerate(action_probs)]
-        )
-        print(f"State {state}: {action_str}")
-
-    print("\n")
-
-def inspect_value_function(V):
-    """Prints the state value function to understand learned state values."""
-    print("\n--- Value Function Inspection ---\n")
-
-    for state in sorted(V.keys()):
-        print(f"State {state}: V(s) = {V[state]:.2f}")
-
-    print("\n")
-
-def print_policy_grid(policy, env):
-    """Prints the policy as a visual grid."""
-    grid = np.full((env.height, env.width), " ", dtype=str)
-    action_symbols = {env.LEFT: "←", env.STAY: "•", env.RIGHT: "→"}
-
-    for (y, x) in policy:
-        if env.level[y][x] == 1:
-            grid[y, x] = "X"  # Obstacle
-        else:
-            best_action = np.argmax(policy[(y, x)])  # Get the best action
-            grid[y, x] = action_symbols[env.actions[best_action]]
-
-    print("\n--- Policy Grid ---\n")
-    for y in range(env.height):
-        print(" ".join(grid[y]))
-    print("\n")
 
 def value_iteration(env, gamma=0.99, theta=1e-6):
     """Finds the optimal policy using Value Iteration."""
@@ -175,17 +101,21 @@ def value_iteration(env, gamma=0.99, theta=1e-6):
             next_state, reward, done = env.get_next_state(state, action)
             q_values[action_idx] = reward + gamma * V[next_state] * (not done)
         best_action = np.argmax(q_values)
-        policy[state] = np.eye(len(actions))[best_action]  # One-hot encoding
+        policy[state] = actions[best_action]
 
     return policy, V
 
-
 if __name__ == "__main__":
     env = MDPGame(random_x=True)
-    # env.load_level(hard_level)
-    policy, V = policy_iteration(env, gamma=0.99)
+    env.load_level(hard_level)
 
-    policy = V_to_policy(V, env)
-    print(policy[(0, 0)])
+    policy, V = policy_iteration(env, gamma=0.99)
+    # policy, V = value_iteration(env, gamma=0.99)
+
     print_policy(policy, env)
-    # print_V(policy, env)
+    print_V(V, env)
+
+    result = evaluate_DP(env, policy_iteration, n=10, gamma=0.99, theta=1e-6)
+    print(result)
+
+    # simulate_agent(env, policy)

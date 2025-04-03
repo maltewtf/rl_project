@@ -122,3 +122,43 @@ def print_V(V, env):
 def argmax(d, default=0):
     """returns the key with the highest associated value (sadly the np.argmax function does not work on dictionaries)"""
     return max(d, key=d.get) if len(d) > 0 else default
+
+
+def evaluate_DP(env, test_function, n, **kwargs):
+    result = 0
+    for _ in range(n):
+        policy, _ = test_function(env, **kwargs)
+        result += test_policy(policy, env, silent=True)
+    return {**kwargs, "pass_rate": result / n}
+
+# Moved from Dymanic_Programmming.py, dunno if we will use in the end.
+def simulate_agent(env, policy):
+    """Simulates an agent playing the game using the learned policy."""
+    state = env.reset()  # Start at the initial position
+    total_reward = 0
+    steps = 0
+
+    print("\nAgent Simulation:\n")
+
+    while True:
+        env.print_state(state)
+
+        if state in policy:
+            best_action = policy[state]
+        else:
+            print(f"State {state} not in learned policy; defaulting to STAY.")
+            best_action = env.actions.index(0)
+
+        action = best_action
+        print(f"Step {steps}: Agent at {state}, taking action {action}")
+
+        next_state, reward, done = env.get_next_state(state, action)
+        total_reward += reward
+        steps += 1
+
+        if done:
+            print(f"\nGame Over! Final State: {next_state}, Total Reward: {total_reward}, Steps Taken: {steps}\n")
+            env.print_state(next_state)
+            break
+
+        state = next_state
