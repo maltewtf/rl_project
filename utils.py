@@ -96,16 +96,13 @@ def sum_Q(Qs):
     return summed_Q
 
 
-def Q_to_policy(Q, game):
+def Q_to_policy(Q, env):
     """reduces Q to V by choosing the action with the highes Q value"""
     policy = {}
-    for state in [(y, x) for y in range(game.height) for x in range(game.width)]:
+    for state in [(y, x) for y in range(env.height) for x in range(env.width)]:
         policy[state] = max(Q[state], key=Q[state].get) if state in Q and len(Q[state]) > 0 else 0
 
     return policy
-
-def V_to_policy(V, env):
-    pass
 
 def print_V(V, env):
     """Prints the value function as a visual grid."""

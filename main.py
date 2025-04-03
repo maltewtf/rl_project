@@ -1,7 +1,7 @@
 import monte_carlo
 from game import MDPGame, hard_level, long_level
 import numpy as np
-import policy_iteration as pi
+import dynamic_programming as pi
 import monte_carlo as mc
 from monte_carlo import Q_to_V
 from monte_carlo_epsilon import mc_control_epsilon_greedy, q_to_policy

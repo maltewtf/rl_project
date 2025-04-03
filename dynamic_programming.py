@@ -1,6 +1,7 @@
 from collections import defaultdict
 import numpy as np
-import matplotlib.pyplot as plt
+from game import MDPGame
+from utils import *
 
 def policy_evaluation(env, policy, gamma=0.99, theta=1e-6):
     V = defaultdict(float)
@@ -177,3 +178,14 @@ def value_iteration(env, gamma=0.99, theta=1e-6):
         policy[state] = np.eye(len(actions))[best_action]  # One-hot encoding
 
     return policy, V
+
+
+if __name__ == "__main__":
+    env = MDPGame(random_x=True)
+    # env.load_level(hard_level)
+    policy, V = policy_iteration(env, gamma=0.99)
+
+    policy = V_to_policy(V, env)
+    print(policy[(0, 0)])
+    print_policy(policy, env)
+    # print_V(policy, env)
