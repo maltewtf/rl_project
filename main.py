@@ -28,7 +28,7 @@ if __name__ == "__main__":
     elif option == "2":
         optimal_policy, optimal_V = pi.value_iteration(env)
     elif option == "3":
-        Q, optimal_policy = mc_control_epsilon_greedy(env, num_episodes=50000, epsilon=0.4, gamma=0.9)
+        Q, optimal_policy = mc_control_epsilon_greedy(env, episodes=50000, epsilon=0.4, gamma=0.9)
 
         pi.simulate_agent(env, optimal_policy)
         optimal_V = Q_to_V(Q, env)

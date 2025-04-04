@@ -4,7 +4,7 @@ from collections import defaultdict
 from game import *
 from utils import *
 
-def mc_control_epsilon_greedy(env, num_episodes, epsilon, gamma):
+def mc_control_epsilon_greedy(env, episodes, epsilon, gamma):
     """
     Monte Carlo control with an ε-greedy strategy without exploring starts.
 
@@ -34,7 +34,7 @@ def mc_control_epsilon_greedy(env, num_episodes, epsilon, gamma):
     # epsilon_end = 0.01
     # epsilon_decay = 0.99995 # added epsilon decay to transition from exploration to exploitation
 
-    for i_episode in range(num_episodes):
+    for i_episode in range(episodes):
         episode = []
         # Start an episode in a random location to ensure maximum exploarabiliy
         state = env.reset()
