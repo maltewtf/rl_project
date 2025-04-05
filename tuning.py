@@ -12,6 +12,13 @@ def evaluate_TD(env, test_function, n, **kwargs):
         result += test_policy(policy, env, silent=True)
     return {**kwargs, "pass_rate" : result / n} # this returns the parameters dict with pass_rate appended to it
 
+def evaluate_DP(env, test_function, n, **kwargs):
+    result = 0
+    for _ in range(n):
+        policy, _ = test_function(env, **kwargs)
+        result += test_policy(policy, env, silent=True)
+    return {**kwargs, "pass_rate": result / n}
+
 def parallel_tuning(env, test_function, eval_function, parameters, n=1):
     results = []
     param_combinations = [dict(zip(parameters.keys(), values)) for values in product(*parameters.values())] # product will compute the powerset of the parameters (I know, its beautiful)

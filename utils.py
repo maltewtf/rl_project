@@ -123,14 +123,6 @@ def argmax(d, default=0):
     """returns the key with the highest associated value (sadly the np.argmax function does not work on dictionaries)"""
     return max(d, key=d.get) if len(d) > 0 else default
 
-
-def evaluate_DP(env, test_function, n, **kwargs):
-    result = 0
-    for _ in range(n):
-        policy, _ = test_function(env, **kwargs)
-        result += test_policy(policy, env, silent=True)
-    return {**kwargs, "pass_rate": result / n}
-
 # Moved from Dymanic_Programmming.py, dunno if we will use in the end.
 def simulate_agent(env, policy):
     """Simulates an agent playing the game using the learned policy."""
