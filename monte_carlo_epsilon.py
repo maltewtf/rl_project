@@ -16,7 +16,7 @@ def mc_control_epsilon_greedy(env, episodes, epsilon, gamma):
         env          : An instance of your MDPGame environment.
                        It must provide:
                            - reset(): returns an initial state.
-                           - get_next_state(state, action): returns (next_state, reward, done).
+                           - step(state, action): returns (next_state, reward, done).
                            - actions: a list of possible actions.
         num_episodes : Number of episodes for training.
         epsilon      : Exploration probability for the ε-greedy policy.
@@ -44,7 +44,7 @@ def mc_control_epsilon_greedy(env, episodes, epsilon, gamma):
         while not done:
             # generat A_t and use it to get S_t+1, R_t+1
             action = epsilon_greedy_policy(Q, state, epsilon)
-            next_state, reward, done = env.get_next_state(state, action)
+            next_state, reward, done = env.step(state, action)
 
             episode.append((state, action, reward))
             state = next_state

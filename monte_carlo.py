@@ -18,7 +18,7 @@ def mc_prediction(env, policy, gamma=0.99, num_episodes=500):
         while not done:
             action_probs = policy[state]
             action = np.random.choice(env.actions, p=action_probs)
-            next_state, reward, done = env.get_next_state(state, action)
+            next_state, reward, done = env.step(state, action)
             episode.append((state, action, reward))
             state = next_state
 
@@ -52,7 +52,7 @@ def mc_control(env, num_iterations, episodes_per_iteration, gamma=0.99, epsilon=
             Q_values = np.zeros(len(actions))
 
             for action_idx, action in enumerate(actions):
-                next_state, reward, done = env.get_next_state(state, action)
+                next_state, reward, done = env.step(state, action)
                 if done:
                     Q_values[action_idx] = reward
                 else:

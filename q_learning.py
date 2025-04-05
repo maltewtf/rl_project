@@ -11,8 +11,8 @@ def q_learning(env: MDPGame, episodes, alpha, gamma, epsilon):
 
         while not done:
             action = epsilon_greedy_policy(Q, state, epsilon)
-            next_state, reward, done = env.get_next_state(state, action)
-            best_action = max(Q[next_state], key=Q[next_state].get) if len(Q[next_state]) > 0 else 0
+            next_state, reward, done = env.step(state, action)
+            best_action = argmax(Q[next_state], key=Q[next_state].get)
 
             # Q(S, A) += alpha * (R + gamma * Q(S', a) - Q(S, A))
             Q[state][action] += alpha * (reward + gamma * Q[next_state][best_action] - Q[state][action])
@@ -33,12 +33,12 @@ def double_q_learning(env: MDPGame, episodes, alpha, gamma, epsilon):
             action = n_epsilon_greedy_policy([Q1, Q2], state, epsilon) # this is necessary because summing Q1 and Q2 every interation results in a massive slow down
             # action = epsilon_greedy_policy(sum_Q([Q1, Q2]), state, epsilon)
 
-            next_state, reward, done = env.get_next_state(state, action)
+            next_state, reward, done = env.step(state, action)
             if random.uniform(0, 1) < .5:
-                best_action = max(Q1[next_state], key=Q1[next_state].get) if len(Q1[next_state]) > 0 else 0
+                best_action = argmax(Q1[next_state], key=Q1[next_state].get)
                 Q1[state][action] += alpha * (reward + gamma * Q1[next_state][best_action] - Q1[state][action])
             else:
-                best_action = max(Q2[next_state], key=Q2[next_state].get) if len(Q2[next_state]) > 0 else 0
+                best_action = argmax(Q2[next_state], key=Q2[next_state].get)
                 Q2[state][action] += alpha * (reward + gamma * Q2[next_state][best_action] - Q2[state][action])
 
             state = next_state
@@ -58,8 +58,8 @@ def q_learning_until_pass(env: MDPGame, expected_pass_rate, alpha, gamma, epsilo
 
         while not done:
             action = epsilon_greedy_policy(Q, state, epsilon)
-            next_state, reward, done = env.get_next_state(state, action)
-            best_action = max(Q[next_state], key=Q[next_state].get) if len(Q[next_state]) > 0 else 0
+            next_state, reward, done = env.step(state, action)
+            best_action = argmax(Q[next_state], key=Q[next_state].get)
 
             # Q(S, A) += alpha * (R + gamma * Q(S', a) - Q(S, A))
             Q[state][action] += alpha * (reward + gamma * Q[next_state][best_action] - Q[state][action])

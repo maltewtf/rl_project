@@ -25,9 +25,9 @@ class MDPGame:
             self.state = (0, self.width // 2) # if nothing given start in the centre
         return self.state
 
-    def step(self, action):
+    def step_full(self, action):
         """Calculates the next step according to the action and applies it to the state of the game"""
-        self.state, reward, _ = self.get_next_state(self.state, action)
+        self.state, reward, _ = self.step(self.state, action)
         return reward
 
     def evaluate_action(self, state, action):
@@ -53,7 +53,7 @@ class MDPGame:
         self.height = len(level)
         self.width = len(level[0])
 
-    def get_next_state(self, state, action):
+    def step(self, state, action):
         """Simulate transition without modifying the real state"""
         y, x = state
         new_x = max(0, min(self.width - 1, x + action))  # Ensure within bounds
@@ -87,7 +87,7 @@ class MDPGame:
 
             a = random.choice(self.actions)
 
-            s1, r, done = self.get_next_state(s, a) # next state, reward and game end boolean
+            s1, r, done = self.step(s, a) # next state, reward and game end boolean
             seq.append([s, a, r])
 
             s = s1
