@@ -3,7 +3,7 @@ from game import *
 from utils import *
 
 def sarsa(env: MDPGame, episodes, alpha, gamma, epsilon):
-    Q = defaultdict(lambda: defaultdict(lambda: 0)) # Q(s, a) where Q is a dict whith states as keys and dicts as values which store action reward pairs
+    Q = defaultdict(lambda: defaultdict(int)) # Q(s, a) where Q is a dict whith states as keys and dicts as values which store action reward pairs
 
     for episode in range(episodes):
         state = env.reset()
