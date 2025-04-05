@@ -41,7 +41,7 @@ def test_policy(policy, env, test_all_starts=True, silent=False, count_partial_s
         state = env.reset(start_x)
 
         while not done:
-            state, reward, done = env.get_next_state(state, policy[state])
+            state, reward, done = env.step(state, policy[state])
 
         if reward > 0:
             success += 1
