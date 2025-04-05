@@ -3,6 +3,20 @@ from game import *
 from utils import *
 
 def sarsa(env: MDPGame, episodes, alpha, gamma, epsilon):
+    """
+    Applies the sarsa algorthim to a given environment and returns the Q-values in form of a dictionary.
+
+    Parameters:
+        env: MDPGame
+        episodes: int
+        alpha: float
+        gamma: float
+        epsilon: float
+
+    returns:
+        Q: defaultdict(lambda: defaultdict(int))
+    """
+
     Q = defaultdict(lambda: defaultdict(int)) # Q(s, a) where Q is a dict whith states as keys and dicts as values which store action reward pairs
 
     for episode in range(episodes):

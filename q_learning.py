@@ -3,6 +3,20 @@ from game import *
 from utils import *
 
 def q_learning(env: MDPGame, episodes, alpha, gamma, epsilon):
+    """
+    Applies the q_learning algorthim to a given environment and returns the Q-values in form of a dictionary.
+
+    Parameters:
+        env: MDPGame
+        episodes: int
+        alpha: float
+        gamma: float
+        epsilon: float
+
+    returns:
+        Q: defaultdict(lambda: defaultdict(int))
+    """
+
     Q = defaultdict(lambda: defaultdict(int)) # Q(s, a), more like Q = s -> a -> q
 
     for episode in range(episodes):
@@ -22,6 +36,18 @@ def q_learning(env: MDPGame, episodes, alpha, gamma, epsilon):
     return Q
 
 def double_q_learning(env: MDPGame, episodes, alpha, gamma, epsilon):
+    """
+    Parameters:
+        env: MDPGame
+        episodes: int
+        alpha: float
+        gamma: float
+        epsilon: float
+
+    returns:
+        Q: defaultdict(lambda: defaultdict(int))
+    """
+
     Q1 = defaultdict(lambda: defaultdict(int)) # Q(s, a)
     Q2 = defaultdict(lambda: defaultdict(int))
 
@@ -46,6 +72,17 @@ def double_q_learning(env: MDPGame, episodes, alpha, gamma, epsilon):
     return sum_Q([Q1, Q2])
 
 def q_learning_until_pass(env: MDPGame, expected_pass_rate, alpha, gamma, epsilon):
+    """
+    Parameters:
+        env: MDPGame
+        expected_pass_rate: float
+        alpha: float
+        gamma: float
+        epsilon: float
+
+    returns:
+        Q: defaultdict(lambda: defaultdict(int))
+    """
     assert expected_pass_rate < 1
     pass_rate = 0
     episodes = 0

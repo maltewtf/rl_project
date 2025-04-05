@@ -52,7 +52,7 @@ def test_policy(policy, env, test_all_starts=True, silent=False, count_partial_s
             else:
                 action = env.STAY  # default action if state is missing
 
-            state, reward, done = env.get_next_state(state, action)
+            state, reward, done = env.step(state, action)
 
         if reward > 0:
             success += 1
@@ -152,7 +152,7 @@ def simulate_agent(env, policy):
         action = best_action
         print(f"Step {steps}: Agent at {state}, taking action {action}")
 
-        next_state, reward, done = env.get_next_state(state, action)
+        next_state, reward, done = env.step(state, action)
         total_reward += reward
         steps += 1
 

@@ -13,7 +13,7 @@ def policy_evaluation(env, policy, gamma=0.99, theta=1e-10):
         for state in states:
             v = V[state]
             action = policy[state]
-            next_state, reward, done = env.get_next_state(state, action)
+            next_state, reward, done = env.step(state, action)
 
             if done:
                 V[state] = reward
@@ -36,7 +36,7 @@ def policy_improvement(env, V, gamma=0.99):
         Q_values = np.zeros(len(actions))  # Store Q-values for all actions
 
         for action_idx, action in enumerate(actions):
-            next_state, reward, done = env.get_next_state(state, action)
+            next_state, reward, done = env.step(state, action)
 
             # Compute Q-values correctly
             Q_values[action_idx] = reward + gamma * V[next_state] * (not done)
@@ -81,7 +81,7 @@ def value_iteration(env, gamma=0.99, theta=1e-6):
             q_values = np.zeros(len(actions))  # Store Q-values for all actions
 
             for action_idx, action in enumerate(actions):
-                next_state, reward, done = env.get_next_state(state, action)
+                next_state, reward, done = env.step(state, action)
 
                 # Compute Q-values correctly
                 q_values[action_idx] = reward + gamma * V[next_state] * (not done)
@@ -98,7 +98,7 @@ def value_iteration(env, gamma=0.99, theta=1e-6):
     for state in states:
         q_values = np.zeros(len(actions))
         for action_idx, action in enumerate(actions):
-            next_state, reward, done = env.get_next_state(state, action)
+            next_state, reward, done = env.step(state, action)
             q_values[action_idx] = reward + gamma * V[next_state] * (not done)
         best_action = np.argmax(q_values)
         policy[state] = actions[best_action]
