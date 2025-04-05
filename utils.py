@@ -2,7 +2,6 @@ import numpy as np
 import random
 from collections import defaultdict
 
-
 def print_policy(policy, env):
     """Prints the policy as a visual grid."""
     grid = np.full((env.height, env.width), " ", dtype=str)
@@ -22,12 +21,12 @@ def print_policy(policy, env):
 
 def test_policy(policy, env, test_all_starts=True, silent=False, count_partial_success=False):
     """
-    Runs the game with a given policy and returns a success ratio.
+    runs the game with a given policy and then returns a success ratio.
 
     Parameters:
-        test_all_starts: When True, tests all possible starting positions and returns the success rate.
-        silent: When True, doesn't print anything at the end.
-        count_partial_success: When True, counts partial success based on how far the agent progressed.
+        test_all_starts: when True, test all possible starting possition and return the passrate of all together.
+        silent: when True, dont print anything at the end.
+        count_partial_success: when True, in addion to adding 1 for completing the level also add the achieved player hight/level height on death to the pass rate.
     """
 
     if test_all_starts:
@@ -42,17 +41,7 @@ def test_policy(policy, env, test_all_starts=True, silent=False, count_partial_s
         state = env.reset(start_x)
 
         while not done:
-            if state in policy:
-                action_probs = policy[state]
-                if isinstance(action_probs, (np.ndarray, list)):
-                    action_index = np.argmax(action_probs)
-                    action = env.actions[action_index]
-                else:
-                    action = action_probs
-            else:
-                action = env.STAY  # default action if state is missing
-
-            state, reward, done = env.step(state, action)
+            state, reward, done = env.get_next_state(state, policy[state])
 
         if reward > 0:
             success += 1
@@ -60,17 +49,15 @@ def test_policy(policy, env, test_all_starts=True, silent=False, count_partial_s
             success += state[0] / env.height
 
     if not silent:
-        # print(f"level completion: {success:.2f}/{len(starts)}")
-        print(f"completion rate: {success/len(starts):.2f}")
+        print(f"level completion: {success}/{len(starts)}")
 
-    return success / len(starts)
+    return success/(len(starts))
 
 def epsilon_greedy_policy(Q, state, epsilon):
+    """applies epsilon greedy strategy to a given state of Q using epsilon and returns the chosen action/key of Q"""
     if random.uniform(0, 1) < epsilon:
         return random.randint(-1, 1) # choose random action
     else:
-        # returns the key of the maximum value in the dictionary 
-        # return max(Q[state], key=Q[state].get) if state in Q else 0
         return argmax(Q[state])
     
 def n_epsilon_greedy_policy(Qs, state, epsilon):
@@ -94,7 +81,6 @@ def sum_Q(Qs):
                 summed_Q[state][action] += Q[state][action]
 
     return summed_Q
-
 
 def Q_to_policy(Q, env):
     """reduces Q to V by choosing the action with the highes Q value"""
@@ -120,7 +106,9 @@ def print_V(V, env):
     print("\n")
         
 def argmax(d, default=0):
-    """returns the key with the highest associated value (sadly the np.argmax function does not work on dictionaries)"""
+    """
+    takes a dictionary whith numerals as values
+    returns the key with the highest associated value (sadly the np.argmax function does not work on dictionaries)"""
     return max(d, key=d.get) if len(d) > 0 else default
 
 # Moved from Dymanic_Programmming.py, dunno if we will use in the end.
