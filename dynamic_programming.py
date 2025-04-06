@@ -108,7 +108,5 @@ if __name__ == "__main__":
     # policy, V = policy_iteration(env, gamma=0.99)
     policy, V = policy_iteration(env, gamma=0.99)
 
-
     print_policy(policy, env)
     # print_V(V, env)
-

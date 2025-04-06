@@ -1,11 +1,12 @@
 import numpy as np
 import random
 from collections import defaultdict
+from game import MDPGame
 
 class Types:
     """
     defines data types/structures and constructors for Q, V, and Policy. 
-    Makes the functions a little more compact and foolproof.
+    Makes the functions a little more compact and foolproof. (also avoids namespace problems by having Types in front)
 
     "__new__(self)" just replaces the constructor
     """
@@ -20,14 +21,18 @@ class Types:
     class Policy:
         def __new__(self):
             return defaultdict(int)
+        
+    class Returns:
+        def __new__(self):
+            return defaultdict(list)
 
 
-def print_policy(policy, env):
+def print_policy(policy: Types.Policy, env: MDPGame):
     """Prints the policy as a visual grid."""
     grid = np.full((env.height, env.width), " ", dtype=str)
     action_symbols = {env.LEFT: "←", env.STAY: "•", env.RIGHT: "→"}
 
-    for (y, x) in policy:
+    for (y, x) in [(y, x) for x in range(env.width) for y in range(env.height)]:
         if env.level[y][x] == 1:
             # grid[y, x] = "_"  # Obstacle
             grid[y, x] = "\u2586"  # Obstacle
