@@ -1,10 +1,9 @@
 import numpy as np
-import random
 from collections import defaultdict
 from game import *
 from utils import *
 
-def mc_control_epsilon_greedy(env, episodes, epsilon, gamma):
+def mc_epsilon_greedy(env, episodes, epsilon, gamma):
     """
     Monte Carlo control with an ε-greedy strategy without exploring starts.
 
@@ -27,12 +26,9 @@ def mc_control_epsilon_greedy(env, episodes, epsilon, gamma):
                  For example, Q[s][a] is the estimated return from taking action a in state s.
     """
 
-    Q = defaultdict(lambda: defaultdict(int)) # Q(s, a)
+    Q = Types.Q()
 
     returns = defaultdict(list)
-
-    # epsilon_end = 0.01
-    # epsilon_decay = 0.99995 # added epsilon decay to transition from exploration to exploitation
 
     for i_episode in range(episodes):
         episode = []
@@ -48,8 +44,6 @@ def mc_control_epsilon_greedy(env, episodes, epsilon, gamma):
 
             episode.append((state, action, reward))
             state = next_state
-
-        # epsilon = max(epsilon_end, epsilon * epsilon_decay)
 
         # First-visit MC update: traverse the episode in reverse order.
         visited = set()  # to record (state, action_index) pairs already updated in this episode
@@ -70,7 +64,7 @@ def mc_control_epsilon_greedy(env, episodes, epsilon, gamma):
 if __name__ == "__main__":
     env = MDPGame(random_x=True)
     env.load_level(hard_level)
-    Q = mc_control_epsilon_greedy(env, 2000, epsilon=0.2, gamma=0.99)
+    Q = mc_epsilon_greedy(env, 2000, epsilon=0.2, gamma=0.99)
 
     test_policy(Q_to_policy(Q, env), env)
     print_policy(Q_to_policy(Q, env), env)

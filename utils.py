@@ -2,6 +2,26 @@ import numpy as np
 import random
 from collections import defaultdict
 
+class Types:
+    """
+    defines data types/structures and constructors for Q, V, and Policy. 
+    Makes the functions a little more compact and foolproof.
+
+    "__new__(self)" just replaces the constructor
+    """
+    class Q:
+        def __new__(self):
+            return defaultdict(lambda : defaultdict(float))
+
+    class V:
+        def __new__(self):
+            return defaultdict(float)
+        
+    class Policy:
+        def __new__(self):
+            return defaultdict(int)
+
+
 def print_policy(policy, env):
     """Prints the policy as a visual grid."""
     grid = np.full((env.height, env.width), " ", dtype=str)

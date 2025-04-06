@@ -1,18 +1,18 @@
-from collections import defaultdict
 import numpy as np
 from game import MDPGame, hard_level
 from utils import *
-from utils import print_policy
 
 def policy_evaluation(env, policy, gamma=0.99, theta=1e-10):
     states, _ = env.get_states_actions()
-    V = {state: 0.0 for state in states}
+    V = Types.V()
 
-    while True:
+    delta = 1
+    while delta > theta:
         delta = 0
         for state in states:
             v = V[state]
             action = policy[state]
+
             next_state, reward, done = env.step(state, action)
 
             if done:
@@ -21,9 +21,6 @@ def policy_evaluation(env, policy, gamma=0.99, theta=1e-10):
                 V[state] = reward + gamma * V[next_state]
 
             delta = max(delta, abs(v - V[state]))
-
-        if delta < theta:
-            break
 
     return V
 
@@ -49,10 +46,9 @@ def policy_improvement(env, V, gamma=0.99):
 
 def policy_iteration(env, gamma=0.99, theta=1e-6):
     """Finds the optimal policy using Policy Iteration."""
-    states, actions = env.get_states_actions()
 
     # Initialize a random policy (equal probability for all actions)
-    policy = {state: 0 for state in states}
+    policy = Types.Policy()
 
     while True:
         V = policy_evaluation(env, policy, gamma, theta)  # Evaluate policy
@@ -69,7 +65,7 @@ def policy_iteration(env, gamma=0.99, theta=1e-6):
 
 def value_iteration(env, gamma=0.99, theta=1e-6):
     """Finds the optimal policy using Value Iteration."""
-    V = defaultdict(float)
+    V = Types.V()
     states, actions = env.get_states_actions()
 
     while True:
@@ -109,13 +105,10 @@ if __name__ == "__main__":
     env = MDPGame(random_x=True)
     env.load_level(hard_level)
 
+    # policy, V = policy_iteration(env, gamma=0.99)
     policy, V = policy_iteration(env, gamma=0.99)
-    # policy, V = value_iteration(env, gamma=0.99)
+
 
     print_policy(policy, env)
-    print_V(V, env)
+    # print_V(V, env)
 
-    result = evaluate_DP(env, policy_iteration, n=10, gamma=0.99, theta=1e-6)
-    print(result)
-
-    # simulate_agent(env, policy)

@@ -1,4 +1,3 @@
-from collections import defaultdict
 from game import *
 from utils import *
 
@@ -17,7 +16,7 @@ def q_learning(env: MDPGame, episodes, alpha, gamma, epsilon):
         Q: defaultdict(lambda: defaultdict(int))
     """
 
-    Q = defaultdict(lambda: defaultdict(int)) # Q(s, a), more like Q = s -> a -> q
+    Q = Types.Q() # Q(s, a), more like Q = s -> a -> q-value
 
     for episode in range(episodes):
         state = env.reset()
@@ -26,7 +25,7 @@ def q_learning(env: MDPGame, episodes, alpha, gamma, epsilon):
         while not done:
             action = epsilon_greedy_policy(Q, state, epsilon)
             next_state, reward, done = env.step(state, action)
-            best_action = argmax(Q[next_state], key=Q[next_state].get)
+            best_action = argmax(Q[next_state])
 
             # Q(S, A) += alpha * (R + gamma * Q(S', a) - Q(S, A))
             Q[state][action] += alpha * (reward + gamma * Q[next_state][best_action] - Q[state][action])
@@ -37,6 +36,9 @@ def q_learning(env: MDPGame, episodes, alpha, gamma, epsilon):
 
 def double_q_learning(env: MDPGame, episodes, alpha, gamma, epsilon):
     """
+    applies that double q-learning approach. This is technically not part of the project but was in the lectures.
+    Its supposed to converge faster but from testing it about performes the same in this environment.
+
     Parameters:
         env: MDPGame
         episodes: int
@@ -48,8 +50,8 @@ def double_q_learning(env: MDPGame, episodes, alpha, gamma, epsilon):
         Q: defaultdict(lambda: defaultdict(int))
     """
 
-    Q1 = defaultdict(lambda: defaultdict(int)) # Q(s, a)
-    Q2 = defaultdict(lambda: defaultdict(int))
+    Q1 = Types.Q() # Q(s, a)
+    Q2 = Types.Q()
 
     for episode in range(episodes):
         state = env.reset()
@@ -61,10 +63,10 @@ def double_q_learning(env: MDPGame, episodes, alpha, gamma, epsilon):
 
             next_state, reward, done = env.step(state, action)
             if random.uniform(0, 1) < .5:
-                best_action = argmax(Q1[next_state], key=Q1[next_state].get)
+                best_action = argmax(Q1[next_state])
                 Q1[state][action] += alpha * (reward + gamma * Q1[next_state][best_action] - Q1[state][action])
             else:
-                best_action = argmax(Q2[next_state], key=Q2[next_state].get)
+                best_action = argmax(Q2[next_state])
                 Q2[state][action] += alpha * (reward + gamma * Q2[next_state][best_action] - Q2[state][action])
 
             state = next_state
@@ -73,6 +75,8 @@ def double_q_learning(env: MDPGame, episodes, alpha, gamma, epsilon):
 
 def q_learning_until_pass(env: MDPGame, expected_pass_rate, alpha, gamma, epsilon):
     """
+    runs q_learning episodes until it manages to pass with a 100% passrate. useful for testing and tuning.
+
     Parameters:
         env: MDPGame
         expected_pass_rate: float
@@ -86,7 +90,7 @@ def q_learning_until_pass(env: MDPGame, expected_pass_rate, alpha, gamma, epsilo
     assert expected_pass_rate < 1
     pass_rate = 0
     episodes = 0
-    Q = defaultdict(lambda: defaultdict(int)) # Q(s, a)
+    Q = Types.Q() # Q(s, a)
 
     while pass_rate < expected_pass_rate:
         episodes += 1
@@ -96,7 +100,7 @@ def q_learning_until_pass(env: MDPGame, expected_pass_rate, alpha, gamma, epsilo
         while not done:
             action = epsilon_greedy_policy(Q, state, epsilon)
             next_state, reward, done = env.step(state, action)
-            best_action = argmax(Q[next_state], key=Q[next_state].get)
+            best_action = argmax(Q[next_state])
 
             # Q(S, A) += alpha * (R + gamma * Q(S', a) - Q(S, A))
             Q[state][action] += alpha * (reward + gamma * Q[next_state][best_action] - Q[state][action])
@@ -105,7 +109,7 @@ def q_learning_until_pass(env: MDPGame, expected_pass_rate, alpha, gamma, epsilo
 
         pass_rate = test_policy(Q_to_policy(Q, env), env, silent=True, count_partial_success=True)
 
-    print(episodes)
+    print(f"episodes: {episodes}")
     return Q
 
 if __name__ == "__main__":
@@ -115,4 +119,3 @@ if __name__ == "__main__":
     Q = q_learning_until_pass(env, expected_pass_rate=0.99, alpha=0.1, gamma=0.99, epsilon=0.1)
     policy = Q_to_policy(Q, env)
     print_policy(policy, env)
-    # test_policy(policy, env, count_partial_success=True)

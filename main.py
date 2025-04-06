@@ -4,7 +4,7 @@ import numpy as np
 import dynamic_programming as pi
 import monte_carlo as mc
 from monte_carlo import Q_to_V
-from monte_carlo_epsilon import mc_control_epsilon_greedy, q_to_policy
+from monte_carlo_epsilon import mc_epsilon_greedy, q_to_policy
 from q_learning import q_learning
 from sarsa import sarsa
 from utils import print_V, print_policy, test_policy, Q_to_policy
@@ -28,7 +28,7 @@ if __name__ == "__main__":
     elif option == "2":
         optimal_policy, optimal_V = pi.value_iteration(env)
     elif option == "3":
-        Q, optimal_policy = mc_control_epsilon_greedy(env, episodes=50000, epsilon=0.4, gamma=0.9)
+        Q, optimal_policy = mc_epsilon_greedy(env, episodes=50000, epsilon=0.4, gamma=0.9)
 
         pi.simulate_agent(env, optimal_policy)
         optimal_V = Q_to_V(Q, env)
