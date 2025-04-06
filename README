@@ -1,0 +1,4 @@
+the program can be executed by running "python main.py", this will run each algorithm, print the policy for each and save a graph for all hyperparameter tuning.
+
+to increase the accuracy of the graphs "python main.py -n {int value > 0}" can be run. The default value for n is 5. For good results values larger than 10 are recommended.
+If n is too small this will cause the graphs to be noisy and might cause the algorithm to fail even tho it passed in the test run.
