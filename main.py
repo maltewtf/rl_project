@@ -70,7 +70,7 @@ if __name__ == "__main__":
         print_policy(policy, env)
 
     # q-learning
-    if "q_learning" in algorithms
+    if "q_learning" in algorithms:
         print(f"Testing Q-learning {n} times: ")
         df = test_hyperparameters(env, n, TuningParameters.q_learning, q_learning)
         plot_hyperparameters(df, "sarsa")
