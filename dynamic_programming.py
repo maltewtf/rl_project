@@ -68,7 +68,8 @@ def value_iteration(env, gamma=0.99, theta=1e-6):
     V = Types.V()
     states, actions = env.get_states_actions()
 
-    while True:
+    delta = 1
+    while delta > theta:
         delta = 0
 
         for state in states:
@@ -85,9 +86,6 @@ def value_iteration(env, gamma=0.99, theta=1e-6):
             V[state] = max(q_values)  # Update state value
 
             delta = max(delta, abs(v - V[state]))
-
-        if delta < theta:
-            break
 
     # Extract the optimal policy
     policy = {}
