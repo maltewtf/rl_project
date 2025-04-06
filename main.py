@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     # monte carlo
     if "monte_carlo" in algorithms:
-        print(f"Testing monte carlo methods {n} times: ")
+        print(f"Testing monte carlo methods with {n} samples: ")
         df = test_hyperparameters(env, n, TuningParameters.mc_epsilon_greedy, mc_epsilon_greedy)
         plot_hyperparameters(df, "monte_carlo")
         ideal_params = extract_hyperparameters(df)
@@ -55,7 +55,7 @@ if __name__ == "__main__":
 
     # sarsa
     if "sarsa" in algorithms:
-        print(f"Testing SARSA {n} times: ")
+        print(f"Testing SARSA with {n} samples: ")
         df = test_hyperparameters(env, n, TuningParameters.sarsa, sarsa)
         plot_hyperparameters(df, "sarsa")
         ideal_params = extract_hyperparameters(df)
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     # q-learning
     if "q_learning" in algorithms:
-        print(f"Testing Q-learning {n} times: ")
+        print(f"Testing Q-learning with {n} samples: ")
         df = test_hyperparameters(env, n, TuningParameters.q_learning, q_learning)
         plot_hyperparameters(df, "sarsa")
         ideal_params = extract_hyperparameters(df)

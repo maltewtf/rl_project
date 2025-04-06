@@ -18,7 +18,7 @@ def sarsa(env: MDPGame, episodes, alpha, gamma, epsilon):
 
     Q = Types.Q() # Q(s, a) where Q is a dict whith states as keys and dicts as values which store action reward pairs
 
-    for episode in range(episodes):
+    for _ in range(episodes):
         state = env.reset()
         action = epsilon_greedy_policy(Q, state, epsilon)
         done = False

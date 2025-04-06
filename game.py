@@ -49,12 +49,17 @@ class MDPGame:
         return reward, done
     
     def load_level(self, level):
+        """loads the level given as parameter"""
         self.level = level
         self.height = len(level)
         self.width = len(level[0])
 
     def step(self, state, action):
-        """Simulate transition without modifying the real state"""
+        """
+        Simulate transition without modifying the real state
+        takes current state and action
+        returns next state, reward of next state and whether the game has ended
+        """
         y, x = state
         new_x = max(0, min(self.width - 1, x + action))  # Ensure within bounds
         new_y = min(y + 1, self.height - 1)  # Always move down
